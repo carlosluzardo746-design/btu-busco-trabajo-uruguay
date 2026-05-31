@@ -17,14 +17,29 @@
       content="Comunidad de oportunidades laborales para Uruguay. Vacantes recientes, empresas y difusión por redes sociales."
     />
     <meta property="og:type" content="website" />
+    <link rel="canonical" href="https://buscotrabajouruguay.uy/" />
     <title>BTU | Busco Trabajo Uruguay</title>
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="stylesheet" href="./styles.css?v=4" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "BTU Busco Trabajo Uruguay",
+        "url": "https://buscotrabajouruguay.uy/",
+        "logo": "https://buscotrabajouruguay.uy/assets/btu-logo.jpeg",
+        "sameAs": [
+          "https://whatsapp.com/channel/0029VbAvKah1CYoVW1kDYo0I",
+          "https://www.instagram.com/b.t.u_",
+          "https://www.facebook.com/share/g/1CtDQXQPcM/"
+        ]
+      }
+    </script>
   </head>
   <body>
     <header class="site-header">
       <a class="brand" href="#inicio" aria-label="BTU inicio">
-        <img class="brand-logo" src="./assets/btu-logo.jpeg?v=4" alt="Logo BTU Busco Trabajo Uruguay" />
+        <img class="brand-logo" src="./assets/btu-logo.jpeg?v=5" alt="Logo BTU Busco Trabajo Uruguay" />
         <span>
           <strong>Busco Trabajo Uruguay</strong>
           <small>Comunidad laboral</small>
@@ -36,7 +51,6 @@
         <a href="#empresas">Empresas</a>
         <a href="#sobre">Sobre BTU</a>
         <a href="#contacto">Contacto</a>
-        <button class="admin-link" id="openAdmin">Admin</button>
       </nav>
     </header>
 
@@ -208,6 +222,13 @@
     </footer>
 
     <dialog class="admin-modal" id="adminModal">
+      <form class="admin-login" id="adminLoginForm">
+        <h2>Ingreso administrador</h2>
+        <input name="user" autocomplete="username" placeholder="Usuario administrador" required />
+        <input name="password" type="password" autocomplete="current-password" placeholder="Clave de administrador" required />
+        <button type="submit">Entrar</button>
+        <p class="form-status" id="adminLoginStatus" role="status"></p>
+      </form>
       <form method="dialog" class="modal-shell">
         <div class="modal-header">
           <div>
@@ -253,6 +274,6 @@
       </section>
     </dialog>
 
-    <script src="./app.js?v=4"></script>
+    <script src="./app.js?v=5"></script>
   </body>
 </html>

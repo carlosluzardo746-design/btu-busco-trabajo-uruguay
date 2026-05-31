@@ -1,6 +1,14 @@
 <?php
 declare(strict_types=1);
 
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'secure' => $isHttps,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -33,6 +41,15 @@ function require_admin(): void
     if (empty($_SESSION['btu_admin'])) {
         http_response_code(401);
         echo json_encode(['ok' => false, 'error' => 'No autorizado.']);
+        exit;
+    }
+}
+
+function require_post(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'error' => 'Metodo no permitido.']);
         exit;
     }
 }
@@ -107,6 +124,7 @@ try {
     }
 
     if ($action === 'site_visit') {
+        require_post();
         ensure_site_stats($pdo);
         $countVisit = (int)($_POST['count'] ?? 0) === 1;
         $pdo->prepare("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('site_visits', 0)")->execute();
@@ -129,6 +147,7 @@ try {
     }
 
     if ($action === 'submit_request') {
+        require_post();
         $imageUrl = upload_image($config);
         $stmt = $pdo->prepare(
             'INSERT INTO vacancy_requests
@@ -150,6 +169,7 @@ try {
     }
 
     if ($action === 'subscribe') {
+        require_post();
         $email = strtolower(text('email'));
         $stmt = $pdo->prepare('INSERT IGNORE INTO subscribers (email) VALUES (?)');
         $stmt->execute([$email]);
@@ -158,9 +178,11 @@ try {
     }
 
     if ($action === 'login') {
+        require_post();
         $user = text('user');
         $password = text('password');
         if ($user === $config['admin_user'] && password_verify($password, $config['admin_password_hash'])) {
+            session_regenerate_id(true);
             $_SESSION['btu_admin'] = true;
             echo json_encode(['ok' => true]);
             exit;
@@ -180,6 +202,7 @@ try {
     }
 
     if ($action === 'create_vacancy') {
+        require_post();
         require_admin();
         $imageUrl = upload_image($config);
         $stmt = $pdo->prepare(
@@ -202,6 +225,7 @@ try {
     }
 
     if ($action === 'approve_request') {
+        require_post();
         require_admin();
         $id = (int)text('id');
         $stmt = $pdo->prepare('SELECT * FROM vacancy_requests WHERE id = ?');
@@ -232,6 +256,7 @@ try {
     }
 
     if ($action === 'reject_request') {
+        require_post();
         require_admin();
         $pdo->prepare("UPDATE vacancy_requests SET status = 'rechazada' WHERE id = ?")->execute([(int)text('id')]);
         echo json_encode(['ok' => true]);
@@ -239,6 +264,7 @@ try {
     }
 
     if ($action === 'cover_vacancy') {
+        require_post();
         require_admin();
         $pdo->prepare("UPDATE vacancies SET status = 'cubierta' WHERE id = ?")->execute([(int)text('id')]);
         echo json_encode(['ok' => true]);
@@ -246,6 +272,7 @@ try {
     }
 
     if ($action === 'delete_vacancy') {
+        require_post();
         require_admin();
         $pdo->prepare('DELETE FROM vacancies WHERE id = ?')->execute([(int)text('id')]);
         echo json_encode(['ok' => true]);

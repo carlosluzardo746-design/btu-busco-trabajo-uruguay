@@ -39,7 +39,8 @@ const els = {
   siteVisitsCount: document.querySelector("#siteVisitsCount"),
   jobDetail: document.querySelector("#jobDetail"),
   adminModal: document.querySelector("#adminModal"),
-  openAdmin: document.querySelector("#openAdmin"),
+  adminLoginForm: document.querySelector("#adminLoginForm"),
+  adminLoginStatus: document.querySelector("#adminLoginStatus"),
   adminForm: document.querySelector("#adminForm"),
   adminImage: document.querySelector("#adminImage"),
   adminImagePreview: document.querySelector("#adminImagePreview"),
@@ -354,20 +355,40 @@ function wireForms() {
 }
 
 function wireAdmin() {
-  els.openAdmin.addEventListener("click", async () => {
-    const user = window.prompt("Usuario administrador");
-    const password = window.prompt("Clave de administrador");
-    const formData = new FormData();
-    formData.set("user", user || "");
-    formData.set("password", password || "");
+  async function openAdminPanel() {
+    els.adminModal.showModal();
+    if (state.adminLogged) {
+      els.adminLoginForm.hidden = true;
+      await loadAdminData();
+      return;
+    }
+    els.adminLoginForm.hidden = false;
+    els.adminLoginStatus.textContent = "";
+    els.adminLoginStatus.classList.remove("error");
+    els.adminLoginForm.querySelector("input")?.focus();
+  }
 
+  if (location.hash === "#admin-btu") {
+    openAdminPanel();
+  }
+
+  window.addEventListener("hashchange", () => {
+    if (location.hash === "#admin-btu") {
+      openAdminPanel();
+    }
+  });
+
+  els.adminLoginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
     try {
-      await api("login", { method: "POST", body: formData });
+      await api("login", { method: "POST", body: new FormData(event.currentTarget) });
       state.adminLogged = true;
-      els.adminModal.showModal();
+      els.adminLoginForm.hidden = true;
+      event.currentTarget.reset();
       await loadAdminData();
     } catch (error) {
-      alert(error.message);
+      els.adminLoginStatus.textContent = error.message;
+      els.adminLoginStatus.classList.add("error");
     }
   });
 

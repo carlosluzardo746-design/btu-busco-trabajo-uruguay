@@ -119,6 +119,26 @@ button {
   color: white;
 }
 
+.admin-login {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.admin-login h2 {
+  margin: 0;
+}
+
+.admin-login:not([hidden]) ~ .modal-shell,
+.admin-login:not([hidden]) ~ .admin-form,
+.admin-login:not([hidden]) ~ .admin-list-section {
+  display: none;
+}
+
 .nav-toggle {
   display: none;
   width: 44px;

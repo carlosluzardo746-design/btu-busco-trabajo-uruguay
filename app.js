@@ -74,7 +74,8 @@ const state = {
   search: "",
   category: "Todas",
   jobs: loadJobs(),
-  requests: loadRequests()
+  requests: loadRequests(),
+  adminLogged: false
 };
 
 const els = {
@@ -93,7 +94,8 @@ const els = {
   siteVisitsCount: document.querySelector("#siteVisitsCount"),
   jobDetail: document.querySelector("#jobDetail"),
   adminModal: document.querySelector("#adminModal"),
-  openAdmin: document.querySelector("#openAdmin"),
+  adminLoginForm: document.querySelector("#adminLoginForm"),
+  adminLoginStatus: document.querySelector("#adminLoginStatus"),
   adminForm: document.querySelector("#adminForm"),
   adminImage: document.querySelector("#adminImage"),
   adminImagePreview: document.querySelector("#adminImagePreview"),
@@ -532,13 +534,39 @@ function wireForms() {
 }
 
 function wireAdmin() {
-  els.openAdmin.addEventListener("click", () => {
-    const passcode = window.prompt("Clave de administrador");
-    if (passcode === "BTU2026") {
-      els.adminModal.showModal();
+  function openAdminPanel() {
+    els.adminModal.showModal();
+    if (state.adminLogged) {
+      els.adminLoginForm.hidden = true;
       return;
     }
-    alert("Clave incorrecta.");
+    els.adminLoginForm.hidden = false;
+    els.adminLoginStatus.textContent = "";
+    els.adminLoginStatus.classList.remove("error");
+    els.adminLoginForm.querySelector("input")?.focus();
+  }
+
+  if (location.hash === "#admin-btu") {
+    openAdminPanel();
+  }
+
+  window.addEventListener("hashchange", () => {
+    if (location.hash === "#admin-btu") {
+      openAdminPanel();
+    }
+  });
+
+  els.adminLoginForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    if (formData.get("user") === "admin" && formData.get("password") === "BTU2026") {
+      state.adminLogged = true;
+      els.adminLoginForm.hidden = true;
+      event.currentTarget.reset();
+      return;
+    }
+    els.adminLoginStatus.textContent = "Credenciales incorrectas.";
+    els.adminLoginStatus.classList.add("error");
   });
 
   els.adminImage.addEventListener("change", async () => {
