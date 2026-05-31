@@ -42,6 +42,17 @@ function text(string $key): string
     return trim((string)($_POST[$key] ?? ''));
 }
 
+function ensure_site_stats(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS site_stats (
+            stat_key VARCHAR(80) PRIMARY KEY,
+            stat_value BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )"
+    );
+}
+
 function upload_image(array $config): ?string
 {
     if (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -92,6 +103,19 @@ try {
     if ($action === 'list_vacancies') {
         $stmt = $pdo->query("SELECT * FROM vacancies WHERE status = 'activa' ORDER BY created_at DESC");
         echo json_encode(['ok' => true, 'items' => $stmt->fetchAll()]);
+        exit;
+    }
+
+    if ($action === 'site_visit') {
+        ensure_site_stats($pdo);
+        $countVisit = (int)($_POST['count'] ?? 0) === 1;
+        $pdo->prepare("INSERT IGNORE INTO site_stats (stat_key, stat_value) VALUES ('site_visits', 0)")->execute();
+        if ($countVisit) {
+            $pdo->prepare("UPDATE site_stats SET stat_value = stat_value + 1 WHERE stat_key = 'site_visits'")->execute();
+        }
+        $stmt = $pdo->prepare("SELECT stat_value FROM site_stats WHERE stat_key = 'site_visits'");
+        $stmt->execute();
+        echo json_encode(['ok' => true, 'visits' => (int)$stmt->fetchColumn()]);
         exit;
     }
 

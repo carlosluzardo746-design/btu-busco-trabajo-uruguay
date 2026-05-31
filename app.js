@@ -90,6 +90,7 @@ const els = {
   emptyState: document.querySelector("#emptyState"),
   resultCount: document.querySelector("#resultCount"),
   jobsCount: document.querySelector("#jobsCount"),
+  siteVisitsCount: document.querySelector("#siteVisitsCount"),
   jobDetail: document.querySelector("#jobDetail"),
   adminModal: document.querySelector("#adminModal"),
   openAdmin: document.querySelector("#openAdmin"),
@@ -168,6 +169,17 @@ function loadRequests() {
   } catch {
     return [];
   }
+}
+
+function loadSiteVisits() {
+  const current = Number(localStorage.getItem("btu.siteVisits") || 0);
+  const shouldCount = sessionStorage.getItem("btu.siteVisitCounted") !== "1";
+  const next = shouldCount ? current + 1 : current;
+  if (shouldCount) {
+    localStorage.setItem("btu.siteVisits", String(next));
+    sessionStorage.setItem("btu.siteVisitCounted", "1");
+  }
+  els.siteVisitsCount.textContent = next.toLocaleString("es-UY");
 }
 
 function saveJobs() {
@@ -731,6 +743,7 @@ renderJobs();
 renderAdminJobs();
 renderAdminRequests();
 renderSubscribers();
+loadSiteVisits();
 wireNavigation();
 wireForms();
 wireAdmin();

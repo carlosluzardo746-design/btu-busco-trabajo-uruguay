@@ -36,6 +36,7 @@ const els = {
   emptyState: document.querySelector("#emptyState"),
   resultCount: document.querySelector("#resultCount"),
   jobsCount: document.querySelector("#jobsCount"),
+  siteVisitsCount: document.querySelector("#siteVisitsCount"),
   jobDetail: document.querySelector("#jobDetail"),
   adminModal: document.querySelector("#adminModal"),
   openAdmin: document.querySelector("#openAdmin"),
@@ -187,6 +188,17 @@ async function loadJobs() {
   state.jobs = data.items || [];
   renderCategories();
   renderJobs();
+}
+
+async function loadSiteVisits() {
+  const formData = new FormData();
+  const shouldCount = sessionStorage.getItem("btu.siteVisitCounted") !== "1";
+  formData.append("count", shouldCount ? "1" : "0");
+  const data = await api("site_visit", { method: "POST", body: formData });
+  if (shouldCount) {
+    sessionStorage.setItem("btu.siteVisitCounted", "1");
+  }
+  els.siteVisitsCount.textContent = Number(data.visits || 0).toLocaleString("es-UY");
 }
 
 async function loadAdminData() {
@@ -493,6 +505,9 @@ function wireNavigation() {
 wireNavigation();
 wireForms();
 wireAdmin();
+loadSiteVisits().catch(() => {
+  els.siteVisitsCount.textContent = "0";
+});
 loadJobs().then(renderDetail).catch((error) => {
   els.jobFeed.innerHTML = `<article class="empty-state"><h3>No se pudo cargar BTU</h3><p>${esc(error.message)}</p></article>`;
 });
