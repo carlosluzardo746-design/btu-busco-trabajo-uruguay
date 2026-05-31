@@ -1,0 +1,13 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/buscotra/public_html/
+    - /bin/cp -R hosting-app/index.html $DEPLOYPATH
+    - /bin/cp -R hosting-app/styles.css $DEPLOYPATH
+    - /bin/cp -R hosting-app/app-hosting.js $DEPLOYPATH
+    - /bin/cp -R hosting-app/api.php $DEPLOYPATH
+    - /bin/cp -R hosting-app/setup.php $DEPLOYPATH
+    - /bin/cp -R hosting-app/install.sql $DEPLOYPATH
+    - /bin/cp -R hosting-app/config.example.php $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/uploads
+    - /bin/cp -R hosting-app/uploads/.htaccess $DEPLOYPATH/uploads/.htaccess
