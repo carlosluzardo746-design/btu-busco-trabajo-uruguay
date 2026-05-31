@@ -8,6 +8,7 @@ return [
     'db_pass' => 'TU_PASSWORD',
     'admin_user' => 'admin',
     'admin_password_hash' => password_hash('BTU2026', PASSWORD_DEFAULT),
+    'setup_token' => 'CAMBIAR_ESTE_TOKEN_LARGO',
     'upload_dir' => __DIR__ . '/uploads',
     'upload_url' => 'uploads',
 ];

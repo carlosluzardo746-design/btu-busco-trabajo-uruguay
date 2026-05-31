@@ -22,6 +22,14 @@ Esta carpeta contiene la version para publicar en un hosting con PHP y MySQL.
 6. Subir el contenido de esta carpeta a `public_html` o a la carpeta del dominio.
 7. Asegurar permisos de escritura para `uploads/`.
 
+Tambien se puede ejecutar `setup.php` despues de crear `config.php`:
+
+```text
+https://tudominio.com/setup.php?token=TU_SETUP_TOKEN
+```
+
+Despues de instalar, eliminar `setup.php` del servidor.
+
 ## Admin
 
 El usuario por defecto en `config.example.php` es:
