@@ -64,17 +64,14 @@ button {
   min-width: 0;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
+.brand-logo {
   width: 48px;
   height: 48px;
   flex: 0 0 48px;
+  object-fit: cover;
+  border-radius: 50%;
   border: 3px solid var(--ink);
   background: var(--yellow);
-  color: var(--ink);
-  font-weight: 950;
-  letter-spacing: 0;
 }
 
 .brand strong,

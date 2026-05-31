@@ -10,5 +10,7 @@ deployment:
     - /bin/cp -R hosting-app/install.sql $DEPLOYPATH
     - /bin/cp -R hosting-app/config.example.php $DEPLOYPATH
     - /bin/cp -R hosting-app/.htaccess $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/assets
+    - /bin/cp -R hosting-app/assets/btu-logo.jpeg $DEPLOYPATH/assets/btu-logo.jpeg
     - /bin/mkdir -p $DEPLOYPATH/uploads
     - /bin/cp -R hosting-app/uploads/.htaccess $DEPLOYPATH/uploads/.htaccess
