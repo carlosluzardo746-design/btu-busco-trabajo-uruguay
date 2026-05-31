@@ -1,0 +1,5 @@
+hosting-app/config.php
+hosting-app/uploads/*
+!hosting-app/uploads/.htaccess
+.DS_Store
+*.zip

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es-UY">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="BTU Busco Trabajo Uruguay difunde ofertas laborales, empleos en Montevideo y oportunidades de trabajo en Uruguay."
+    />
+    <meta
+      name="keywords"
+      content="trabajo en Uruguay, empleos en Montevideo, ofertas laborales Uruguay, busco trabajo, BTU"
+    />
+    <meta property="og:title" content="BTU | Busco Trabajo Uruguay" />
+    <meta
+      property="og:description"
+      content="Comunidad de oportunidades laborales para Uruguay. Vacantes recientes, empresas y difusión por redes sociales."
+    />
+    <meta property="og:type" content="website" />
+    <title>BTU | Busco Trabajo Uruguay</title>
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="BTU inicio">
+        <span class="brand-mark">BTU</span>
+        <span>
+          <strong>Busco Trabajo Uruguay</strong>
+          <small>Comunidad laboral</small>
+        </span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+      <nav class="main-nav" id="mainNav" aria-label="Navegacion principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#empresas">Empresas</a>
+        <a href="#sobre">Sobre BTU</a>
+        <a href="#contacto">Contacto</a>
+        <button class="admin-link" id="openAdmin">Admin</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero-feed" id="inicio">
+        <div class="hero-copy">
+          <p class="eyebrow">Busco Trabajo Uruguay</p>
+          <h1>BTU</h1>
+          <p>
+            Vacantes recientes, difusión rápida y una comunidad activa en redes,
+            WhatsApp y Facebook para que las oportunidades lleguen a más personas.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-action" href="#vacantes">Ver vacantes</a>
+            <a class="secondary-action" href="#newsletter">Recibir ofertas</a>
+          </div>
+        </div>
+        <div class="hero-panel" aria-label="Resumen de comunidad BTU">
+          <div>
+            <strong id="jobsCount">0</strong>
+            <span>vacantes activas</span>
+          </div>
+          <div>
+            <strong>24/7</strong>
+            <span>difusion social</span>
+          </div>
+          <div>
+            <strong>UY</strong>
+            <span>alcance nacional</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="search-band" aria-label="Buscar empleos">
+        <div class="search-box">
+          <label for="searchInput">Buscar empleo</label>
+          <div class="search-row">
+            <input id="searchInput" type="search" placeholder="Puesto, empresa o palabra clave" />
+            <button id="clearSearch" aria-label="Limpiar busqueda">×</button>
+          </div>
+        </div>
+        <div class="social-strip" aria-label="Redes sociales BTU">
+          <a href="https://wa.me/" target="_blank" rel="noreferrer">WhatsApp</a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://www.facebook.com/groups/" target="_blank" rel="noreferrer">Grupo Facebook</a>
+        </div>
+      </section>
+
+      <section class="content-shell" id="vacantes">
+        <aside class="filters" aria-label="Categorias de empleo">
+          <h2>Categorias</h2>
+          <div class="category-list" id="categoryList"></div>
+        </aside>
+
+        <section class="jobs-area" aria-live="polite">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Vacantes recientes</p>
+              <h2>Oportunidades laborales</h2>
+            </div>
+            <span id="resultCount">0 resultados</span>
+          </div>
+          <div class="job-feed" id="jobFeed"></div>
+          <article class="empty-state" id="emptyState" hidden>
+            <h3>No encontramos ofertas con ese filtro</h3>
+            <p>Probá con otra palabra clave o elegí otra categoría.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="detail-view" id="jobDetail" hidden></section>
+
+      <section class="form-section" id="empresas">
+        <div>
+          <p class="eyebrow">Para empresas</p>
+          <h2>Solicitar publicacion de aviso</h2>
+          <p>
+            Las empresas pueden enviar su busqueda laboral. El equipo de BTU revisa
+            el contenido y publica las oportunidades aprobadas.
+          </p>
+        </div>
+        <form class="stacked-form" id="companyForm">
+          <input name="company" placeholder="Nombre de la empresa" required />
+          <input name="contact" type="email" placeholder="Correo de contacto" required />
+          <input name="role" placeholder="Puesto a publicar" required />
+          <input name="location" placeholder="Ubicacion" required />
+          <select name="category" required>
+            <option value="">Categoria</option>
+            <option>Administracion</option>
+            <option>Gastronomia</option>
+            <option>Ventas</option>
+            <option>Logistica</option>
+            <option>Limpieza</option>
+            <option>Salud</option>
+            <option>Construccion</option>
+            <option>Tecnologia</option>
+            <option>Otras</option>
+          </select>
+          <input name="whatsapp" placeholder="WhatsApp de postulaciones" required />
+          <label class="upload-box" for="companyImage">
+            <span>Imagen del aviso opcional</span>
+            <strong id="companyImageFileName">Elegir imagen opcional</strong>
+            <input id="companyImage" name="companyImageFile" type="file" accept="image/*" />
+          </label>
+          <img class="admin-preview" id="companyImagePreview" alt="Vista previa de la imagen del aviso" hidden />
+          <textarea name="message" placeholder="Descripcion breve del aviso" required></textarea>
+          <button type="submit">Enviar solicitud</button>
+          <p class="form-status" id="companyStatus" role="status"></p>
+        </form>
+      </section>
+
+      <section class="newsletter-section" id="newsletter">
+        <div>
+          <p class="eyebrow">Newsletter BTU</p>
+          <h2>Recibi ofertas laborales por correo</h2>
+        </div>
+        <form class="newsletter-form" id="newsletterForm">
+          <input name="email" type="email" placeholder="tuemail@correo.com" required />
+          <button type="submit">Suscribirme</button>
+        </form>
+        <p class="form-status" id="newsletterStatus" role="status"></p>
+      </section>
+
+      <section class="about-section" id="sobre">
+        <div>
+          <p class="eyebrow">Sobre BTU</p>
+          <h2>Uno de los medios de difusion laboral con mayor comunidad en Uruguay</h2>
+        </div>
+        <p>
+          BTU nace para acercar personas y empresas de forma simple. Reune vacantes
+          recientes, canales sociales y una comunidad activa para que quienes buscan
+          trabajo puedan enterarse rapido y postularse sin barreras.
+        </p>
+      </section>
+
+      <section class="contact-section" id="contacto">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h2>Hablemos</h2>
+          <p>Consultas, alianzas, avisos y propuestas para difundir oportunidades laborales.</p>
+        </div>
+        <form class="stacked-form" id="contactForm">
+          <input name="name" placeholder="Nombre" required />
+          <input name="email" type="email" placeholder="Correo" required />
+          <textarea name="message" placeholder="Mensaje" required></textarea>
+          <button type="submit">Enviar mensaje</button>
+          <p class="form-status" id="contactStatus" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <strong>BTU</strong>
+      <span>Busco Trabajo Uruguay</span>
+      <a href="#inicio">Volver arriba</a>
+    </footer>
+
+    <dialog class="admin-modal" id="adminModal">
+      <form method="dialog" class="modal-shell">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Panel de administracion</p>
+            <h2>Publicar nueva vacante</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="Cerrar">×</button>
+        </div>
+      </form>
+      <form class="admin-form" id="adminForm">
+        <div class="admin-grid">
+          <input name="title" placeholder="Titulo del puesto" required />
+          <input name="company" placeholder="Empresa" required />
+          <input name="location" placeholder="Ubicacion" required />
+          <select name="category" required id="adminCategory"></select>
+          <input name="email" type="email" placeholder="Correo para postulaciones" required />
+          <input name="whatsapp" placeholder="WhatsApp" required />
+        </div>
+        <label class="upload-box" for="adminImage">
+          <span>Subir foto desde tu dispositivo</span>
+          <strong id="imageFileName">Elegir imagen</strong>
+          <input id="adminImage" name="imageFile" type="file" accept="image/*" />
+        </label>
+        <img class="admin-preview" id="adminImagePreview" alt="Vista previa de la foto" hidden />
+        <textarea name="description" placeholder="Descripcion completa de la vacante" required></textarea>
+        <button type="submit">Publicar vacante</button>
+        <p class="form-status" id="adminStatus" role="status"></p>
+      </form>
+      <section class="admin-list-section" aria-label="Vacantes publicadas">
+        <h3>Vacantes publicadas</h3>
+        <div class="admin-job-list" id="adminJobList"></div>
+      </section>
+      <section class="admin-list-section" aria-label="Avisos pendientes">
+        <h3>Solicitudes pendientes</h3>
+        <div class="admin-job-list" id="adminRequestList"></div>
+      </section>
+      <section class="admin-list-section" aria-label="Suscriptores newsletter">
+        <div class="admin-section-row">
+          <h3>Suscriptores newsletter</h3>
+          <button class="approve-job" type="button" id="exportSubscribers">Exportar CSV</button>
+        </div>
+        <div class="admin-job-list" id="subscriberList"></div>
+      </section>
+    </dialog>
+
+    <script src="./app-hosting.js"></script>
+  </body>
+</html>
