@@ -31,7 +31,12 @@ if ($sql === false) {
     exit;
 }
 
-$pdo->exec($sql);
+$statements = array_filter(array_map('trim', explode(';', $sql)));
+foreach ($statements as $statement) {
+    if ($statement !== '') {
+        $pdo->exec($statement);
+    }
+}
 
 if (!is_dir($config['upload_dir'])) {
     mkdir($config['upload_dir'], 0755, true);
