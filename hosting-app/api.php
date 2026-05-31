@@ -70,6 +70,37 @@ function ensure_site_stats(PDO $pdo): void
     );
 }
 
+function ensure_admin_settings(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS admin_settings (
+            setting_key VARCHAR(80) PRIMARY KEY,
+            setting_value TEXT NOT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )"
+    );
+}
+
+function current_admin_password_hash(PDO $pdo, array $config): string
+{
+    ensure_admin_settings($pdo);
+    $stmt = $pdo->prepare("SELECT setting_value FROM admin_settings WHERE setting_key = 'admin_password_hash'");
+    $stmt->execute();
+    $hash = $stmt->fetchColumn();
+    return is_string($hash) && $hash !== '' ? $hash : (string)$config['admin_password_hash'];
+}
+
+function set_admin_password_hash(PDO $pdo, string $hash): void
+{
+    ensure_admin_settings($pdo);
+    $stmt = $pdo->prepare(
+        "INSERT INTO admin_settings (setting_key, setting_value)
+        VALUES ('admin_password_hash', ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+    );
+    $stmt->execute([$hash]);
+}
+
 function upload_image(array $config): ?string
 {
     if (empty($_FILES['image']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -181,7 +212,7 @@ try {
         require_post();
         $user = text('user');
         $password = text('password');
-        if ($user === $config['admin_user'] && password_verify($password, $config['admin_password_hash'])) {
+        if ($user === $config['admin_user'] && password_verify($password, current_admin_password_hash($pdo, $config))) {
             session_regenerate_id(true);
             $_SESSION['btu_admin'] = true;
             echo json_encode(['ok' => true]);
@@ -189,6 +220,28 @@ try {
         }
         http_response_code(401);
         echo json_encode(['ok' => false, 'error' => 'Credenciales incorrectas.']);
+        exit;
+    }
+
+    if ($action === 'change_admin_password') {
+        require_post();
+        require_admin();
+        $currentPassword = text('current_password');
+        $newPassword = text('new_password');
+        if (!password_verify($currentPassword, current_admin_password_hash($pdo, $config))) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'La clave actual no es correcta.']);
+            exit;
+        }
+        if (strlen($newPassword) < 12) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => 'La nueva clave debe tener al menos 12 caracteres.']);
+            exit;
+        }
+        set_admin_password_hash($pdo, password_hash($newPassword, PASSWORD_DEFAULT));
+        session_regenerate_id(true);
+        $_SESSION['btu_admin'] = true;
+        echo json_encode(['ok' => true]);
         exit;
     }
 

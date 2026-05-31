@@ -20,7 +20,7 @@
     <link rel="canonical" href="https://buscotrabajouruguay.uy/" />
     <title>BTU | Busco Trabajo Uruguay</title>
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="stylesheet" href="./styles.css?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=6" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -39,7 +39,7 @@
   <body>
     <header class="site-header">
       <a class="brand" href="#inicio" aria-label="BTU inicio">
-        <img class="brand-logo" src="./assets/btu-logo.jpeg?v=5" alt="Logo BTU Busco Trabajo Uruguay" />
+        <img class="brand-logo" src="./assets/btu-logo.jpeg?v=6" alt="Logo BTU Busco Trabajo Uruguay" />
         <span>
           <strong>Busco Trabajo Uruguay</strong>
           <small>Comunidad laboral</small>
@@ -238,6 +238,15 @@
           <button class="icon-button" value="cancel" aria-label="Cerrar">×</button>
         </div>
       </form>
+      <form class="password-form" id="passwordForm">
+        <h3>Cambiar clave admin</h3>
+        <div class="admin-grid">
+          <input name="current_password" type="password" autocomplete="current-password" placeholder="Clave actual" required />
+          <input name="new_password" type="password" autocomplete="new-password" placeholder="Nueva clave" minlength="12" required />
+        </div>
+        <button type="submit">Cambiar clave</button>
+        <p class="form-status" id="passwordStatus" role="status"></p>
+      </form>
       <form class="admin-form" id="adminForm">
         <div class="admin-grid">
           <input name="title" placeholder="Titulo del puesto" required />
@@ -274,6 +283,6 @@
       </section>
     </dialog>
 
-    <script src="./app.js?v=5"></script>
+    <script src="./app.js?v=6"></script>
   </body>
 </html>

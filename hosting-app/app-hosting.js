@@ -41,6 +41,8 @@ const els = {
   adminModal: document.querySelector("#adminModal"),
   adminLoginForm: document.querySelector("#adminLoginForm"),
   adminLoginStatus: document.querySelector("#adminLoginStatus"),
+  passwordForm: document.querySelector("#passwordForm"),
+  passwordStatus: document.querySelector("#passwordStatus"),
   adminForm: document.querySelector("#adminForm"),
   adminImage: document.querySelector("#adminImage"),
   adminImagePreview: document.querySelector("#adminImagePreview"),
@@ -389,6 +391,19 @@ function wireAdmin() {
     } catch (error) {
       els.adminLoginStatus.textContent = error.message;
       els.adminLoginStatus.classList.add("error");
+    }
+  });
+
+  els.passwordForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      await api("change_admin_password", { method: "POST", body: new FormData(event.currentTarget) });
+      event.currentTarget.reset();
+      els.passwordStatus.textContent = "Clave actualizada.";
+      els.passwordStatus.classList.remove("error");
+    } catch (error) {
+      els.passwordStatus.textContent = error.message;
+      els.passwordStatus.classList.add("error");
     }
   });
 

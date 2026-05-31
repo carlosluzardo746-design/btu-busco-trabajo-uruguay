@@ -96,6 +96,8 @@ const els = {
   adminModal: document.querySelector("#adminModal"),
   adminLoginForm: document.querySelector("#adminLoginForm"),
   adminLoginStatus: document.querySelector("#adminLoginStatus"),
+  passwordForm: document.querySelector("#passwordForm"),
+  passwordStatus: document.querySelector("#passwordStatus"),
   adminForm: document.querySelector("#adminForm"),
   adminImage: document.querySelector("#adminImage"),
   adminImagePreview: document.querySelector("#adminImagePreview"),
@@ -567,6 +569,24 @@ function wireAdmin() {
     }
     els.adminLoginStatus.textContent = "Credenciales incorrectas.";
     els.adminLoginStatus.classList.add("error");
+  });
+
+  els.passwordForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    if (formData.get("current_password") !== "BTU2026") {
+      els.passwordStatus.textContent = "La clave actual no es correcta.";
+      els.passwordStatus.classList.add("error");
+      return;
+    }
+    if (String(formData.get("new_password") || "").length < 12) {
+      els.passwordStatus.textContent = "La nueva clave debe tener al menos 12 caracteres.";
+      els.passwordStatus.classList.add("error");
+      return;
+    }
+    event.currentTarget.reset();
+    els.passwordStatus.textContent = "En la version local esta opcion es demostrativa.";
+    els.passwordStatus.classList.remove("error");
   });
 
   els.adminImage.addEventListener("change", async () => {
