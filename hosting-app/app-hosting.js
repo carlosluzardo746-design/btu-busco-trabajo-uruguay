@@ -68,11 +68,30 @@ async function api(action, options = {}) {
     body: options.body,
     credentials: "same-origin"
   });
-  const data = await response.json();
+  const raw = await response.text();
+  let data;
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    throw new Error("El servidor respondio con un formato inesperado. Recarga la pagina e intenta de nuevo.");
+  }
   if (!response.ok || !data.ok) {
     throw new Error(data.error || "No se pudo completar la accion.");
   }
   return data;
+}
+
+function setFormBusy(form, isBusy) {
+  const controls = form.querySelectorAll("button, input, select, textarea");
+  controls.forEach((control) => {
+    control.disabled = isBusy;
+  });
+}
+
+function showAdminModal() {
+  if (!els.adminModal.open) {
+    els.adminModal.showModal();
+  }
 }
 
 function filteredJobs() {
@@ -333,6 +352,7 @@ function wireForms() {
   document.querySelector("#companyForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
     const formData = new FormData(form);
     formData.set("title", formData.get("role"));
     formData.set("email", formData.get("contact"));
@@ -342,6 +362,8 @@ function wireForms() {
     }
 
     try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
       await api("submit_request", { method: "POST", body: formData });
       form.reset();
       els.companyImagePreview.hidden = true;
@@ -351,18 +373,27 @@ function wireForms() {
         "Solicitud recibida. Queda pendiente para aprobacion del administrador.";
     } catch (error) {
       document.querySelector("#companyStatus").textContent = error.message;
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
     }
   });
 
   document.querySelector("#newsletterForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
     try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
       await api("subscribe", { method: "POST", body: new FormData(form) });
       form.reset();
       document.querySelector("#newsletterStatus").textContent = "Listo. Te sumamos a la newsletter BTU.";
     } catch (error) {
       document.querySelector("#newsletterStatus").textContent = error.message;
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
     }
   });
 
@@ -375,7 +406,7 @@ function wireForms() {
 
 function wireAdmin() {
   async function openAdminPanel() {
-    els.adminModal.showModal();
+    showAdminModal();
     if (state.adminLogged) {
       els.adminLoginForm.hidden = true;
       await loadAdminData();
@@ -400,7 +431,10 @@ function wireAdmin() {
   els.adminLoginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
     try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
       await api("login", { method: "POST", body: new FormData(form) });
       state.adminLogged = true;
       els.adminLoginForm.hidden = true;
@@ -409,13 +443,19 @@ function wireAdmin() {
     } catch (error) {
       els.adminLoginStatus.textContent = error.message;
       els.adminLoginStatus.classList.add("error");
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
     }
   });
 
   els.passwordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
     try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
       await api("change_admin_password", { method: "POST", body: new FormData(form) });
       form.reset();
       els.passwordStatus.textContent = "Clave actualizada.";
@@ -423,6 +463,9 @@ function wireAdmin() {
     } catch (error) {
       els.passwordStatus.textContent = error.message;
       els.passwordStatus.classList.add("error");
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
     }
   });
 
@@ -438,12 +481,15 @@ function wireAdmin() {
   els.adminForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
     const formData = new FormData(form);
     if (els.adminImage.files[0]) {
       formData.set("image", els.adminImage.files[0]);
     }
 
     try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
       await api("create_vacancy", { method: "POST", body: formData });
       form.reset();
       els.adminImagePreview.hidden = true;
@@ -452,6 +498,9 @@ function wireAdmin() {
       await refreshAdminData("Vacante publicada en el feed.");
     } catch (error) {
       setAdminStatus(error.message, true);
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
     }
   });
 

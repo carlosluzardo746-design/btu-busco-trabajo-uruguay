@@ -59,6 +59,15 @@ function text(string $key): string
     return trim((string)($_POST[$key] ?? ''));
 }
 
+function require_fields(array $fields): void
+{
+    foreach ($fields as $field => $label) {
+        if (text($field) === '') {
+            throw new RuntimeException("Falta completar: {$label}.");
+        }
+    }
+}
+
 function ensure_site_stats(PDO $pdo): void
 {
     $pdo->exec(
@@ -179,6 +188,15 @@ try {
 
     if ($action === 'submit_request') {
         require_post();
+        require_fields([
+            'title' => 'puesto',
+            'company' => 'empresa',
+            'location' => 'ubicacion',
+            'category' => 'categoria',
+            'description' => 'descripcion',
+            'email' => 'correo',
+            'whatsapp' => 'WhatsApp',
+        ]);
         $imageUrl = upload_image($config);
         $stmt = $pdo->prepare(
             'INSERT INTO vacancy_requests
@@ -202,6 +220,9 @@ try {
     if ($action === 'subscribe') {
         require_post();
         $email = strtolower(text('email'));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new RuntimeException('Ingresa un correo valido.');
+        }
         $stmt = $pdo->prepare('INSERT IGNORE INTO subscribers (email) VALUES (?)');
         $stmt->execute([$email]);
         echo json_encode(['ok' => true]);
@@ -257,6 +278,15 @@ try {
     if ($action === 'create_vacancy') {
         require_post();
         require_admin();
+        require_fields([
+            'title' => 'titulo del puesto',
+            'company' => 'empresa',
+            'location' => 'ubicacion',
+            'category' => 'categoria',
+            'description' => 'descripcion',
+            'email' => 'correo',
+            'whatsapp' => 'WhatsApp',
+        ]);
         $imageUrl = upload_image($config);
         $stmt = $pdo->prepare(
             'INSERT INTO vacancies
@@ -281,6 +311,9 @@ try {
         require_post();
         require_admin();
         $id = (int)text('id');
+        if ($id <= 0) {
+            throw new RuntimeException('Solicitud no valida.');
+        }
         $stmt = $pdo->prepare('SELECT * FROM vacancy_requests WHERE id = ?');
         $stmt->execute([$id]);
         $request = $stmt->fetch();
@@ -311,7 +344,11 @@ try {
     if ($action === 'reject_request') {
         require_post();
         require_admin();
-        $pdo->prepare("UPDATE vacancy_requests SET status = 'rechazada' WHERE id = ?")->execute([(int)text('id')]);
+        $id = (int)text('id');
+        if ($id <= 0) {
+            throw new RuntimeException('Solicitud no valida.');
+        }
+        $pdo->prepare("UPDATE vacancy_requests SET status = 'rechazada' WHERE id = ?")->execute([$id]);
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -319,7 +356,11 @@ try {
     if ($action === 'cover_vacancy') {
         require_post();
         require_admin();
-        $pdo->prepare("UPDATE vacancies SET status = 'cubierta' WHERE id = ?")->execute([(int)text('id')]);
+        $id = (int)text('id');
+        if ($id <= 0) {
+            throw new RuntimeException('Vacante no valida.');
+        }
+        $pdo->prepare("UPDATE vacancies SET status = 'cubierta' WHERE id = ?")->execute([$id]);
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -327,7 +368,11 @@ try {
     if ($action === 'delete_vacancy') {
         require_post();
         require_admin();
-        $pdo->prepare('DELETE FROM vacancies WHERE id = ?')->execute([(int)text('id')]);
+        $id = (int)text('id');
+        if ($id <= 0) {
+            throw new RuntimeException('Vacante no valida.');
+        }
+        $pdo->prepare('DELETE FROM vacancies WHERE id = ?')->execute([$id]);
         echo json_encode(['ok' => true]);
         exit;
     }
