@@ -266,6 +266,28 @@ try {
         exit;
     }
 
+    if ($action === 'recover_admin_password') {
+        require_post();
+        $token = text('token');
+        $newPassword = text('new_password');
+        $configuredToken = (string)($config['setup_token'] ?? '');
+        if ($configuredToken === '' || !hash_equals($configuredToken, $token)) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Token de recuperacion incorrecto.']);
+            exit;
+        }
+        if (strlen($newPassword) < 12) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => 'La nueva clave debe tener al menos 12 caracteres.']);
+            exit;
+        }
+        set_admin_password_hash($pdo, password_hash($newPassword, PASSWORD_DEFAULT));
+        session_regenerate_id(true);
+        $_SESSION['btu_admin'] = true;
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
     if ($action === 'admin_data') {
         require_admin();
         $requests = $pdo->query("SELECT * FROM vacancy_requests WHERE status = 'pendiente' ORDER BY created_at DESC")->fetchAll();
