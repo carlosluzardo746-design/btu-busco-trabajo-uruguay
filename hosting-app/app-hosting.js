@@ -383,10 +383,11 @@ function wireForms() {
     event.preventDefault();
     const form = event.currentTarget;
     if (form.dataset.busy === "1") return;
+    const formData = new FormData(form);
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("subscribe", { method: "POST", body: new FormData(form) });
+      await api("subscribe", { method: "POST", body: formData });
       form.reset();
       document.querySelector("#newsletterStatus").textContent = "Listo. Te sumamos a la newsletter BTU.";
     } catch (error) {
@@ -432,10 +433,11 @@ function wireAdmin() {
     event.preventDefault();
     const form = event.currentTarget;
     if (form.dataset.busy === "1") return;
+    const formData = new FormData(form);
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("login", { method: "POST", body: new FormData(form) });
+      await api("login", { method: "POST", body: formData });
       state.adminLogged = true;
       els.adminLoginForm.hidden = true;
       form.reset();
@@ -453,10 +455,11 @@ function wireAdmin() {
     event.preventDefault();
     const form = event.currentTarget;
     if (form.dataset.busy === "1") return;
+    const formData = new FormData(form);
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("change_admin_password", { method: "POST", body: new FormData(form) });
+      await api("change_admin_password", { method: "POST", body: formData });
       form.reset();
       els.passwordStatus.textContent = "Clave actualizada.";
       els.passwordStatus.classList.remove("error");
