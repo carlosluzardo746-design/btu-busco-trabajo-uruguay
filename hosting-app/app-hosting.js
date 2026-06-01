@@ -211,6 +211,21 @@ async function loadAdminData() {
   renderSubscribers(data.subscribers || []);
 }
 
+async function refreshAdminData(message) {
+  try {
+    await loadAdminData();
+    if (message) {
+      setAdminStatus(message);
+    }
+  } catch (error) {
+    if (message) {
+      setAdminStatus(`${message} Si no ves la lista actualizada, cerrá y volvé a entrar al panel admin.`);
+      return;
+    }
+    throw error;
+  }
+}
+
 function renderAdminJobs(jobs) {
   els.adminJobList.innerHTML = jobs.length
     ? jobs
@@ -428,9 +443,8 @@ function wireAdmin() {
       event.currentTarget.reset();
       els.adminImagePreview.hidden = true;
       els.imageFileName.textContent = "Elegir imagen";
-      setAdminStatus("Vacante publicada en el feed.");
       await loadJobs();
-      await loadAdminData();
+      await refreshAdminData("Vacante publicada en el feed.");
     } catch (error) {
       setAdminStatus(error.message, true);
     }
@@ -446,9 +460,8 @@ function wireAdmin() {
 
     try {
       await api(approve ? "approve_request" : "reject_request", { method: "POST", body: formData });
-      setAdminStatus(approve ? "Solicitud aprobada y publicada." : "Solicitud rechazada.");
       await loadJobs();
-      await loadAdminData();
+      await refreshAdminData(approve ? "Solicitud aprobada y publicada." : "Solicitud rechazada.");
     } catch (error) {
       setAdminStatus(error.message, true);
     }
@@ -465,9 +478,8 @@ function wireAdmin() {
 
     try {
       await api(cover ? "cover_vacancy" : "delete_vacancy", { method: "POST", body: formData });
-      setAdminStatus(cover ? "Vacante marcada como cubierta." : "Vacante eliminada.");
       await loadJobs();
-      await loadAdminData();
+      await refreshAdminData(cover ? "Vacante marcada como cubierta." : "Vacante eliminada.");
     } catch (error) {
       setAdminStatus(error.message, true);
     }
