@@ -332,7 +332,8 @@ function wireForms() {
 
   document.querySelector("#companyForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     formData.set("title", formData.get("role"));
     formData.set("email", formData.get("contact"));
     formData.set("description", formData.get("message"));
@@ -342,7 +343,7 @@ function wireForms() {
 
     try {
       await api("submit_request", { method: "POST", body: formData });
-      event.currentTarget.reset();
+      form.reset();
       els.companyImagePreview.hidden = true;
       els.companyImagePreview.removeAttribute("src");
       els.companyImageFileName.textContent = "Elegir imagen opcional";
@@ -355,9 +356,10 @@ function wireForms() {
 
   document.querySelector("#newsletterForm").addEventListener("submit", async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
     try {
-      await api("subscribe", { method: "POST", body: new FormData(event.currentTarget) });
-      event.currentTarget.reset();
+      await api("subscribe", { method: "POST", body: new FormData(form) });
+      form.reset();
       document.querySelector("#newsletterStatus").textContent = "Listo. Te sumamos a la newsletter BTU.";
     } catch (error) {
       document.querySelector("#newsletterStatus").textContent = error.message;
@@ -397,11 +399,12 @@ function wireAdmin() {
 
   els.adminLoginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
     try {
-      await api("login", { method: "POST", body: new FormData(event.currentTarget) });
+      await api("login", { method: "POST", body: new FormData(form) });
       state.adminLogged = true;
       els.adminLoginForm.hidden = true;
-      event.currentTarget.reset();
+      form.reset();
       await loadAdminData();
     } catch (error) {
       els.adminLoginStatus.textContent = error.message;
@@ -411,9 +414,10 @@ function wireAdmin() {
 
   els.passwordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const form = event.currentTarget;
     try {
-      await api("change_admin_password", { method: "POST", body: new FormData(event.currentTarget) });
-      event.currentTarget.reset();
+      await api("change_admin_password", { method: "POST", body: new FormData(form) });
+      form.reset();
       els.passwordStatus.textContent = "Clave actualizada.";
       els.passwordStatus.classList.remove("error");
     } catch (error) {
@@ -433,14 +437,15 @@ function wireAdmin() {
 
   els.adminForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     if (els.adminImage.files[0]) {
       formData.set("image", els.adminImage.files[0]);
     }
 
     try {
       await api("create_vacancy", { method: "POST", body: formData });
-      event.currentTarget.reset();
+      form.reset();
       els.adminImagePreview.hidden = true;
       els.imageFileName.textContent = "Elegir imagen";
       await loadJobs();
