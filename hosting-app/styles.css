@@ -899,6 +899,10 @@ button {
     padding: 0;
   }
 
+  .job-card .job-meta {
+    display: none;
+  }
+
   .job-actions,
   .detail-actions {
     display: grid;
