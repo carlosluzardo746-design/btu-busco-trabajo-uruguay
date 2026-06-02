@@ -1,3 +1,7 @@
 DirectoryIndex index.html index.php
 
 Options -Indexes
+
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?buscotrabajouruguay\.com$ [NC]
+RewriteRule ^(.*)$ https://buscotrabajouruguay.uy/$1 [R=301,L]
