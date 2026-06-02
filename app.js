@@ -109,6 +109,19 @@ const els = {
   exportSubscribers: document.querySelector("#exportSubscribers")
 };
 
+function formatPublishDate(value) {
+  if (!value) return "Fecha no disponible";
+
+  const date = new Date(String(value).replace(" ", "T"));
+  if (Number.isNaN(date.getTime())) return "Fecha no disponible";
+
+  return `Publicado el ${date.toLocaleDateString("es-UY", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  })}`;
+}
+
 let pendingAdminImage = "";
 let pendingCompanyImage = "";
 
@@ -294,7 +307,7 @@ function renderAdminJobs() {
         <article class="admin-job-item">
           <div>
             <strong>${job.title}</strong>
-            <span>${job.company} · ${job.location} · ${job.category}</span>
+            <span>${job.company} · ${job.location} · ${job.category} · ${formatPublishDate(job.createdAt)}</span>
           </div>
           <button class="delete-job" type="button" data-delete-job="${job.id}">
             Eliminar
@@ -389,6 +402,7 @@ function renderDetail() {
           <span class="pill">${job.company}</span>
           <span class="pill">${job.location}</span>
           <span class="pill">${job.views || 0} visitas</span>
+          <span class="pill">${formatPublishDate(job.createdAt)}</span>
         </div>
         <p>${job.description}</p>
         <div class="detail-actions">

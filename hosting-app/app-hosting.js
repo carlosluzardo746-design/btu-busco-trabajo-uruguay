@@ -107,6 +107,19 @@ function addCsrf(formData) {
   return formData;
 }
 
+function formatPublishDate(value) {
+  if (!value) return "Fecha no disponible";
+
+  const date = new Date(String(value).replace(" ", "T"));
+  if (Number.isNaN(date.getTime())) return "Fecha no disponible";
+
+  return `Publicado el ${date.toLocaleDateString("es-UY", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  })}`;
+}
+
 function showAdminModal() {
   if (!els.adminModal.open) {
     els.adminModal.showModal();
@@ -206,6 +219,7 @@ async function renderDetail() {
           <span class="pill">${esc(job.company)}</span>
           <span class="pill">${esc(job.location)}</span>
           <span class="pill">${Number(job.views || 0)} visitas</span>
+          <span class="pill">${esc(formatPublishDate(job.created_at))}</span>
         </div>
         <p>${esc(job.description)}</p>
         <div class="detail-actions">
@@ -274,7 +288,7 @@ function renderAdminJobs(jobs) {
             <article class="admin-job-item">
               <div>
                 <strong>${esc(job.title)}</strong>
-                <span>${esc(job.company)} · ${esc(job.location)} · ${esc(job.category)} · ${esc(job.status)}</span>
+                <span>${esc(job.company)} · ${esc(job.location)} · ${esc(job.category)} · ${esc(job.status)} · ${esc(formatPublishDate(job.created_at))}</span>
               </div>
               <div class="request-actions">
                 <button class="approve-job" type="button" data-cover-job="${job.id}">Cubierta</button>
