@@ -45,6 +45,11 @@ function require_admin(): void
     }
 }
 
+function client_ip(): string
+{
+    return substr((string)($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 0, 45);
+}
+
 function require_post(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
@@ -90,24 +95,121 @@ function ensure_admin_settings(PDO $pdo): void
     );
 }
 
-function current_admin_password_hash(PDO $pdo, array $config): string
+function ensure_security_tables(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS login_attempts (
+            ip_address VARCHAR(45) PRIMARY KEY,
+            attempts INT UNSIGNED NOT NULL DEFAULT 0,
+            locked_until DATETIME NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS admin_audit_logs (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            action VARCHAR(80) NOT NULL,
+            details TEXT NULL,
+            ip_address VARCHAR(45) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )"
+    );
+}
+
+function admin_setting(PDO $pdo, string $key, string $fallback): string
 {
     ensure_admin_settings($pdo);
-    $stmt = $pdo->prepare("SELECT setting_value FROM admin_settings WHERE setting_key = 'admin_password_hash'");
-    $stmt->execute();
-    $hash = $stmt->fetchColumn();
-    return is_string($hash) && $hash !== '' ? $hash : (string)$config['admin_password_hash'];
+    $stmt = $pdo->prepare('SELECT setting_value FROM admin_settings WHERE setting_key = ?');
+    $stmt->execute([$key]);
+    $value = $stmt->fetchColumn();
+    return is_string($value) && $value !== '' ? $value : $fallback;
+}
+
+function set_admin_setting(PDO $pdo, string $key, string $value): void
+{
+    ensure_admin_settings($pdo);
+    $stmt = $pdo->prepare(
+        'INSERT INTO admin_settings (setting_key, setting_value)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+    );
+    $stmt->execute([$key, $value]);
+}
+
+function current_admin_user(PDO $pdo, array $config): string
+{
+    return admin_setting($pdo, 'admin_user', (string)$config['admin_user']);
+}
+
+function current_admin_password_hash(PDO $pdo, array $config): string
+{
+    return admin_setting($pdo, 'admin_password_hash', (string)$config['admin_password_hash']);
 }
 
 function set_admin_password_hash(PDO $pdo, string $hash): void
 {
-    ensure_admin_settings($pdo);
-    $stmt = $pdo->prepare(
-        "INSERT INTO admin_settings (setting_key, setting_value)
-        VALUES ('admin_password_hash', ?)
-        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
-    );
-    $stmt->execute([$hash]);
+    set_admin_setting($pdo, 'admin_password_hash', $hash);
+}
+
+function csrf_token(): string
+{
+    if (empty($_SESSION['btu_csrf'])) {
+        $_SESSION['btu_csrf'] = bin2hex(random_bytes(32));
+    }
+    return (string)$_SESSION['btu_csrf'];
+}
+
+function require_csrf(): void
+{
+    $token = text('csrf_token');
+    $sessionToken = (string)($_SESSION['btu_csrf'] ?? '');
+    if ($sessionToken === '' || !hash_equals($sessionToken, $token)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Sesion vencida. Cerrá el panel y volvé a entrar.']);
+        exit;
+    }
+}
+
+function log_admin_action(PDO $pdo, string $action, string $details = ''): void
+{
+    ensure_security_tables($pdo);
+    $stmt = $pdo->prepare('INSERT INTO admin_audit_logs (action, details, ip_address) VALUES (?, ?, ?)');
+    $stmt->execute([$action, $details, client_ip()]);
+}
+
+function check_login_lock(PDO $pdo): void
+{
+    ensure_security_tables($pdo);
+    $stmt = $pdo->prepare('SELECT attempts, locked_until FROM login_attempts WHERE ip_address = ?');
+    $stmt->execute([client_ip()]);
+    $row = $stmt->fetch();
+    if (!$row || empty($row['locked_until'])) {
+        return;
+    }
+    if (strtotime((string)$row['locked_until']) > time()) {
+        http_response_code(429);
+        echo json_encode(['ok' => false, 'error' => 'Demasiados intentos. Probá nuevamente en unos minutos.']);
+        exit;
+    }
+}
+
+function record_login_failure(PDO $pdo): void
+{
+    ensure_security_tables($pdo);
+    $ip = client_ip();
+    $pdo->prepare('INSERT IGNORE INTO login_attempts (ip_address, attempts) VALUES (?, 0)')->execute([$ip]);
+    $pdo->prepare(
+        'UPDATE login_attempts
+        SET attempts = attempts + 1,
+            locked_until = IF(attempts + 1 >= 5, DATE_ADD(NOW(), INTERVAL 10 MINUTE), locked_until)
+        WHERE ip_address = ?'
+    )->execute([$ip]);
+}
+
+function clear_login_failures(PDO $pdo): void
+{
+    $pdo->prepare('DELETE FROM login_attempts WHERE ip_address = ?')->execute([client_ip()]);
 }
 
 function upload_image(array $config): ?string
@@ -231,14 +333,21 @@ try {
 
     if ($action === 'login') {
         require_post();
+        check_login_lock($pdo);
         $user = text('user');
         $password = text('password');
-        if ($user === $config['admin_user'] && password_verify($password, current_admin_password_hash($pdo, $config))) {
+        if ($user === current_admin_user($pdo, $config) && password_verify($password, current_admin_password_hash($pdo, $config))) {
             session_regenerate_id(true);
             $_SESSION['btu_admin'] = true;
-            echo json_encode(['ok' => true]);
+            $_SESSION['btu_admin_user'] = $user;
+            csrf_token();
+            clear_login_failures($pdo);
+            log_admin_action($pdo, 'login_success', "Usuario: {$user}");
+            echo json_encode(['ok' => true, 'csrf_token' => csrf_token(), 'admin_user' => $user]);
             exit;
         }
+        record_login_failure($pdo);
+        log_admin_action($pdo, 'login_failure', "Usuario intentado: {$user}");
         http_response_code(401);
         echo json_encode(['ok' => false, 'error' => 'Credenciales incorrectas.']);
         exit;
@@ -247,6 +356,7 @@ try {
     if ($action === 'change_admin_password') {
         require_post();
         require_admin();
+        require_csrf();
         $currentPassword = text('current_password');
         $newPassword = text('new_password');
         if (!password_verify($currentPassword, current_admin_password_hash($pdo, $config))) {
@@ -262,7 +372,26 @@ try {
         set_admin_password_hash($pdo, password_hash($newPassword, PASSWORD_DEFAULT));
         session_regenerate_id(true);
         $_SESSION['btu_admin'] = true;
-        echo json_encode(['ok' => true]);
+        $_SESSION['btu_csrf'] = bin2hex(random_bytes(32));
+        log_admin_action($pdo, 'change_password', 'Clave admin actualizada.');
+        echo json_encode(['ok' => true, 'csrf_token' => csrf_token()]);
+        exit;
+    }
+
+    if ($action === 'change_admin_user') {
+        require_post();
+        require_admin();
+        require_csrf();
+        $newUser = text('new_user');
+        if (!preg_match('/^[a-zA-Z0-9._-]{6,40}$/', $newUser)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => 'El usuario debe tener 6 a 40 caracteres y usar letras, numeros, punto, guion o guion bajo.']);
+            exit;
+        }
+        set_admin_setting($pdo, 'admin_user', $newUser);
+        $_SESSION['btu_admin_user'] = $newUser;
+        log_admin_action($pdo, 'change_user', "Nuevo usuario: {$newUser}");
+        echo json_encode(['ok' => true, 'admin_user' => $newUser, 'csrf_token' => csrf_token()]);
         exit;
     }
 
@@ -284,7 +413,9 @@ try {
         set_admin_password_hash($pdo, password_hash($newPassword, PASSWORD_DEFAULT));
         session_regenerate_id(true);
         $_SESSION['btu_admin'] = true;
-        echo json_encode(['ok' => true]);
+        $_SESSION['btu_csrf'] = bin2hex(random_bytes(32));
+        log_admin_action($pdo, 'recover_password', 'Clave admin recuperada con token.');
+        echo json_encode(['ok' => true, 'csrf_token' => csrf_token()]);
         exit;
     }
 
@@ -293,13 +424,24 @@ try {
         $requests = $pdo->query("SELECT * FROM vacancy_requests WHERE status = 'pendiente' ORDER BY created_at DESC")->fetchAll();
         $vacancies = $pdo->query('SELECT * FROM vacancies ORDER BY created_at DESC')->fetchAll();
         $subscribers = $pdo->query('SELECT * FROM subscribers ORDER BY created_at DESC')->fetchAll();
-        echo json_encode(['ok' => true, 'requests' => $requests, 'vacancies' => $vacancies, 'subscribers' => $subscribers]);
+        ensure_security_tables($pdo);
+        $auditLogs = $pdo->query('SELECT action, details, ip_address, created_at FROM admin_audit_logs ORDER BY created_at DESC LIMIT 30')->fetchAll();
+        echo json_encode([
+            'ok' => true,
+            'requests' => $requests,
+            'vacancies' => $vacancies,
+            'subscribers' => $subscribers,
+            'audit_logs' => $auditLogs,
+            'admin_user' => current_admin_user($pdo, $config),
+            'csrf_token' => csrf_token(),
+        ]);
         exit;
     }
 
     if ($action === 'create_vacancy') {
         require_post();
         require_admin();
+        require_csrf();
         require_fields([
             'title' => 'titulo del puesto',
             'company' => 'empresa',
@@ -325,6 +467,7 @@ try {
             text('whatsapp'),
             $imageUrl,
         ]);
+        log_admin_action($pdo, 'create_vacancy', 'Vacante: ' . text('title'));
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -332,6 +475,7 @@ try {
     if ($action === 'approve_request') {
         require_post();
         require_admin();
+        require_csrf();
         $id = (int)text('id');
         if ($id <= 0) {
             throw new RuntimeException('Solicitud no valida.');
@@ -359,6 +503,7 @@ try {
             $request['image_url'],
         ]);
         $pdo->prepare("UPDATE vacancy_requests SET status = 'aprobada' WHERE id = ?")->execute([$id]);
+        log_admin_action($pdo, 'approve_request', "Solicitud {$id}: {$request['title']}");
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -366,11 +511,13 @@ try {
     if ($action === 'reject_request') {
         require_post();
         require_admin();
+        require_csrf();
         $id = (int)text('id');
         if ($id <= 0) {
             throw new RuntimeException('Solicitud no valida.');
         }
         $pdo->prepare("UPDATE vacancy_requests SET status = 'rechazada' WHERE id = ?")->execute([$id]);
+        log_admin_action($pdo, 'reject_request', "Solicitud {$id}");
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -378,11 +525,13 @@ try {
     if ($action === 'cover_vacancy') {
         require_post();
         require_admin();
+        require_csrf();
         $id = (int)text('id');
         if ($id <= 0) {
             throw new RuntimeException('Vacante no valida.');
         }
         $pdo->prepare("UPDATE vacancies SET status = 'cubierta' WHERE id = ?")->execute([$id]);
+        log_admin_action($pdo, 'cover_vacancy', "Vacante {$id}");
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -390,11 +539,13 @@ try {
     if ($action === 'delete_vacancy') {
         require_post();
         require_admin();
+        require_csrf();
         $id = (int)text('id');
         if ($id <= 0) {
             throw new RuntimeException('Vacante no valida.');
         }
         $pdo->prepare('DELETE FROM vacancies WHERE id = ?')->execute([$id]);
+        log_admin_action($pdo, 'delete_vacancy', "Vacante {$id}");
         echo json_encode(['ok' => true]);
         exit;
     }

@@ -18,7 +18,9 @@ const state = {
   search: "",
   category: "Todas",
   jobs: [],
-  adminLogged: false
+  adminLogged: false,
+  csrfToken: "",
+  adminUser: ""
 };
 
 const els = {
@@ -43,7 +45,10 @@ const els = {
   adminLoginStatus: document.querySelector("#adminLoginStatus"),
   passwordForm: document.querySelector("#passwordForm"),
   passwordStatus: document.querySelector("#passwordStatus"),
+  usernameForm: document.querySelector("#usernameForm"),
+  usernameStatus: document.querySelector("#usernameStatus"),
   adminForm: document.querySelector("#adminForm"),
+  auditLogList: document.querySelector("#auditLogList"),
   adminImage: document.querySelector("#adminImage"),
   adminImagePreview: document.querySelector("#adminImagePreview"),
   imageFileName: document.querySelector("#imageFileName"),
@@ -86,6 +91,20 @@ function setFormBusy(form, isBusy) {
   controls.forEach((control) => {
     control.disabled = isBusy;
   });
+}
+
+function applyAdminSession(data) {
+  state.csrfToken = data.csrf_token || state.csrfToken;
+  state.adminUser = data.admin_user || state.adminUser;
+  if (state.adminUser && els.usernameForm) {
+    const input = els.usernameForm.querySelector("[name='new_user']");
+    if (input) input.value = state.adminUser;
+  }
+}
+
+function addCsrf(formData) {
+  formData.set("csrf_token", state.csrfToken);
+  return formData;
 }
 
 function showAdminModal() {
@@ -225,9 +244,11 @@ async function loadSiteVisits() {
 
 async function loadAdminData() {
   const data = await api("admin_data");
+  applyAdminSession(data);
   renderAdminJobs(data.vacancies || []);
   renderAdminRequests(data.requests || []);
   renderSubscribers(data.subscribers || []);
+  renderAuditLogs(data.audit_logs || []);
 }
 
 async function refreshAdminData(message) {
@@ -304,6 +325,23 @@ function renderSubscribers(subscribers) {
         )
         .join("")
     : `<p class="form-status">Todavia no hay suscriptores.</p>`;
+}
+
+function renderAuditLogs(logs) {
+  els.auditLogList.innerHTML = logs.length
+    ? logs
+        .map(
+          (log) => `
+            <article class="admin-job-item">
+              <div>
+                <strong>${esc(log.action)}</strong>
+                <span>${esc(log.details || "Sin detalle")} · ${esc(log.ip_address)} · ${new Date(log.created_at).toLocaleString("es-UY")}</span>
+              </div>
+            </article>
+          `
+        )
+        .join("")
+    : `<p class="form-status">Todavia no hay actividad registrada.</p>`;
 }
 
 function setAdminStatus(message, isError = false) {
@@ -437,7 +475,8 @@ function wireAdmin() {
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("login", { method: "POST", body: formData });
+      const data = await api("login", { method: "POST", body: formData });
+      applyAdminSession(data);
       state.adminLogged = true;
       els.adminLoginForm.hidden = true;
       form.reset();
@@ -459,13 +498,36 @@ function wireAdmin() {
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("change_admin_password", { method: "POST", body: formData });
+      const data = await api("change_admin_password", { method: "POST", body: addCsrf(formData) });
+      applyAdminSession(data);
       form.reset();
       els.passwordStatus.textContent = "Clave actualizada.";
       els.passwordStatus.classList.remove("error");
     } catch (error) {
       els.passwordStatus.textContent = error.message;
       els.passwordStatus.classList.add("error");
+    } finally {
+      form.dataset.busy = "0";
+      setFormBusy(form, false);
+    }
+  });
+
+  els.usernameForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (form.dataset.busy === "1") return;
+    const formData = new FormData(form);
+    try {
+      form.dataset.busy = "1";
+      setFormBusy(form, true);
+      const data = await api("change_admin_user", { method: "POST", body: addCsrf(formData) });
+      applyAdminSession(data);
+      els.usernameStatus.textContent = "Usuario actualizado.";
+      els.usernameStatus.classList.remove("error");
+      await refreshAdminData();
+    } catch (error) {
+      els.usernameStatus.textContent = error.message;
+      els.usernameStatus.classList.add("error");
     } finally {
       form.dataset.busy = "0";
       setFormBusy(form, false);
@@ -493,7 +555,7 @@ function wireAdmin() {
     try {
       form.dataset.busy = "1";
       setFormBusy(form, true);
-      await api("create_vacancy", { method: "POST", body: formData });
+      await api("create_vacancy", { method: "POST", body: addCsrf(formData) });
       form.reset();
       els.adminImagePreview.hidden = true;
       els.imageFileName.textContent = "Elegir imagen";
@@ -516,7 +578,7 @@ function wireAdmin() {
     formData.set("id", approve?.dataset.approveRequest || reject?.dataset.rejectRequest);
 
     try {
-      await api(approve ? "approve_request" : "reject_request", { method: "POST", body: formData });
+      await api(approve ? "approve_request" : "reject_request", { method: "POST", body: addCsrf(formData) });
       await loadJobs();
       await refreshAdminData(approve ? "Solicitud aprobada y publicada." : "Solicitud rechazada.");
     } catch (error) {
@@ -534,7 +596,7 @@ function wireAdmin() {
     formData.set("id", cover?.dataset.coverJob || remove?.dataset.deleteJob);
 
     try {
-      await api(cover ? "cover_vacancy" : "delete_vacancy", { method: "POST", body: formData });
+      await api(cover ? "cover_vacancy" : "delete_vacancy", { method: "POST", body: addCsrf(formData) });
       await loadJobs();
       await refreshAdminData(cover ? "Vacante marcada como cubierta." : "Vacante eliminada.");
     } catch (error) {

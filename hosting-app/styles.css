@@ -120,7 +120,7 @@ button {
 }
 
 .admin-login,
-.password-form {
+.security-form {
   display: grid;
   gap: 12px;
   margin-bottom: 20px;
@@ -131,11 +131,12 @@ button {
 }
 
 .admin-login h2,
-.password-form h3 {
+.security-form h3 {
   margin: 0;
 }
 
 .admin-login:not([hidden]) ~ .modal-shell,
+.admin-login:not([hidden]) ~ .security-form,
 .admin-login:not([hidden]) ~ .admin-form,
 .admin-login:not([hidden]) ~ .admin-list-section {
   display: none;

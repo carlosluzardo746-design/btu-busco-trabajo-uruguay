@@ -20,7 +20,7 @@
     <link rel="canonical" href="https://buscotrabajouruguay.uy/" />
     <title>BTU | Busco Trabajo Uruguay</title>
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="stylesheet" href="./styles.css?v=14" />
+    <link rel="stylesheet" href="./styles.css?v=15" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -238,7 +238,7 @@
           <button class="icon-button" value="cancel" aria-label="Cerrar">×</button>
         </div>
       </form>
-      <form class="password-form" id="passwordForm">
+      <form class="security-form" id="passwordForm">
         <h3>Cambiar clave admin</h3>
         <div class="admin-grid">
           <input name="current_password" type="password" autocomplete="current-password" placeholder="Clave actual" required />
@@ -246,6 +246,14 @@
         </div>
         <button type="submit">Cambiar clave</button>
         <p class="form-status" id="passwordStatus" role="status"></p>
+      </form>
+      <form class="security-form" id="usernameForm">
+        <h3>Cambiar usuario admin</h3>
+        <div class="admin-grid">
+          <input name="new_user" autocomplete="username" placeholder="Nuevo usuario administrador" minlength="6" maxlength="40" required />
+        </div>
+        <button type="submit">Cambiar usuario</button>
+        <p class="form-status" id="usernameStatus" role="status"></p>
       </form>
       <form class="admin-form" id="adminForm">
         <div class="admin-grid">
@@ -280,6 +288,10 @@
           <button class="approve-job" type="button" id="exportSubscribers">Exportar CSV</button>
         </div>
         <div class="admin-job-list" id="subscriberList"></div>
+      </section>
+      <section class="admin-list-section" aria-label="Actividad de seguridad">
+        <h3>Actividad de seguridad</h3>
+        <div class="admin-job-list" id="auditLogList"></div>
       </section>
     </dialog>
 
