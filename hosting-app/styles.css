@@ -906,6 +906,15 @@ button {
     gap: 8px;
   }
 
+  .job-actions a:not(.apply),
+  .job-actions button {
+    display: none;
+  }
+
+  .job-actions {
+    grid-template-columns: 1fr;
+  }
+
   .job-actions a,
   .job-actions button,
   .detail-actions a,
