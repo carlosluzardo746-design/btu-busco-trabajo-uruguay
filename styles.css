@@ -903,6 +903,11 @@ button {
     display: none;
   }
 
+  .job-card h3,
+  .job-card p {
+    display: none;
+  }
+
   .job-actions,
   .detail-actions {
     display: grid;
