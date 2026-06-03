@@ -223,10 +223,16 @@ async function renderDetail() {
         </div>
         <p>${esc(job.description)}</p>
         <div class="detail-actions">
-          <a class="apply" href="mailto:${esc(job.email)}?subject=Postulacion: ${encodeURIComponent(job.title)}">
-            Postular por correo
-          </a>
-          <a href="https://wa.me/${String(job.whatsapp).replace(/\D/g, "")}" target="_blank" rel="noreferrer">WhatsApp</a>
+          ${
+            job.email
+              ? `<a class="apply" href="mailto:${esc(job.email)}?subject=Postulacion: ${encodeURIComponent(job.title)}">Postular por correo</a>`
+              : ""
+          }
+          ${
+            job.whatsapp
+              ? `<a href="https://wa.me/${String(job.whatsapp).replace(/\D/g, "")}" target="_blank" rel="noreferrer">WhatsApp</a>`
+              : ""
+          }
           <a href="${whatsappShareUrl(job)}" target="_blank" rel="noreferrer">${platformIcon("whatsapp")} Compartir WhatsApp</a>
           <a href="${facebookShareUrl(job)}" target="_blank" rel="noreferrer">${platformIcon("facebook")} Compartir Facebook</a>
           <button type="button" data-copy="${job.id}">${platformIcon("instagram")} Instagram</button>

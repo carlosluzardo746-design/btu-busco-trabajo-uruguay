@@ -442,32 +442,35 @@ try {
         require_post();
         require_admin();
         require_csrf();
-        require_fields([
-            'title' => 'titulo del puesto',
-            'company' => 'empresa',
-            'location' => 'ubicacion',
-            'category' => 'categoria',
-            'description' => 'descripcion',
-            'email' => 'correo',
-            'whatsapp' => 'WhatsApp',
-        ]);
         $imageUrl = upload_image($config);
+        $title = text('title') !== '' ? text('title') : 'Nueva vacante';
+        $company = text('company') !== '' ? text('company') : 'BTU';
+        $location = text('location') !== '' ? text('location') : 'Uruguay';
+        $category = text('category') !== '' ? text('category') : 'Otras';
+        $description = text('description') !== '' ? text('description') : 'Ver imagen del aviso.';
+        $email = text('email');
+        $whatsapp = text('whatsapp');
+
+        if ($imageUrl === null && text('title') === '' && text('description') === '') {
+            throw new RuntimeException('Subí una imagen o completá al menos el título o la descripción.');
+        }
+
         $stmt = $pdo->prepare(
             'INSERT INTO vacancies
             (title, company, location, category, description, email, whatsapp, image_url)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
-            text('title'),
-            text('company'),
-            text('location'),
-            text('category'),
-            text('description'),
-            text('email'),
-            text('whatsapp'),
+            $title,
+            $company,
+            $location,
+            $category,
+            $description,
+            $email,
+            $whatsapp,
             $imageUrl,
         ]);
-        log_admin_action($pdo, 'create_vacancy', 'Vacante: ' . text('title'));
+        log_admin_action($pdo, 'create_vacancy', 'Vacante: ' . $title);
         echo json_encode(['ok' => true]);
         exit;
     }

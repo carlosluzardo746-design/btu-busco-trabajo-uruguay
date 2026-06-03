@@ -406,12 +406,16 @@ function renderDetail() {
         </div>
         <p>${job.description}</p>
         <div class="detail-actions">
-          <a class="apply" href="mailto:${job.email}?subject=Postulacion: ${encodeURIComponent(job.title)}">
-            Postular por correo
-          </a>
-          <a href="https://wa.me/${job.whatsapp.replace(/\D/g, "")}" target="_blank" rel="noreferrer">
-            WhatsApp
-          </a>
+          ${
+            job.email
+              ? `<a class="apply" href="mailto:${job.email}?subject=Postulacion: ${encodeURIComponent(job.title)}">Postular por correo</a>`
+              : ""
+          }
+          ${
+            job.whatsapp
+              ? `<a href="https://wa.me/${job.whatsapp.replace(/\D/g, "")}" target="_blank" rel="noreferrer">WhatsApp</a>`
+              : ""
+          }
           <a href="${whatsappShareUrl(job)}" target="_blank" rel="noreferrer">
             ${platformIcon("whatsapp")} Compartir WhatsApp
           </a>
@@ -632,22 +636,23 @@ function wireAdmin() {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
     const createdAt = new Date().toISOString().slice(0, 10);
-    const id = `${slugify(data.title)}-${Date.now()}`;
+    const title = data.title || "Nueva vacante";
+    const id = `${slugify(title)}-${Date.now()}`;
 
     state.jobs.unshift({
       id,
-      title: data.title,
-      company: data.company,
-      location: data.location,
-      category: data.category,
+      title,
+      company: data.company || "BTU",
+      location: data.location || "Uruguay",
+      category: data.category || "Otras",
       image:
         pendingAdminImage ||
         "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80",
-      email: data.email,
-      whatsapp: data.whatsapp,
+      email: data.email || "",
+      whatsapp: data.whatsapp || "",
       views: 0,
       createdAt,
-      description: data.description
+      description: data.description || "Ver imagen del aviso."
     });
 
     try {

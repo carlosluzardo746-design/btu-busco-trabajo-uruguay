@@ -257,12 +257,12 @@
       </form>
       <form class="admin-form" id="adminForm">
         <div class="admin-grid">
-          <input name="title" placeholder="Titulo del puesto" required />
-          <input name="company" placeholder="Empresa" required />
-          <input name="location" placeholder="Ubicacion" required />
-          <select name="category" required id="adminCategory"></select>
-          <input name="email" type="email" placeholder="Correo para postulaciones" required />
-          <input name="whatsapp" placeholder="WhatsApp" required />
+          <input name="title" placeholder="Titulo del puesto" />
+          <input name="company" placeholder="Empresa" />
+          <input name="location" placeholder="Ubicacion" />
+          <select name="category" id="adminCategory"></select>
+          <input name="email" type="email" placeholder="Correo para postulaciones" />
+          <input name="whatsapp" placeholder="WhatsApp" />
         </div>
         <label class="upload-box" for="adminImage">
           <span>Subir foto desde tu dispositivo</span>
@@ -270,7 +270,7 @@
           <input id="adminImage" name="imageFile" type="file" accept="image/*" />
         </label>
         <img class="admin-preview" id="adminImagePreview" alt="Vista previa de la foto" hidden />
-        <textarea name="description" placeholder="Descripcion completa de la vacante" required></textarea>
+        <textarea name="description" placeholder="Descripcion completa de la vacante"></textarea>
         <button type="submit">Publicar vacante</button>
         <p class="form-status" id="adminStatus" role="status"></p>
       </form>
@@ -295,6 +295,6 @@
       </section>
     </dialog>
 
-    <script src="./app.js?v=16"></script>
+    <script src="./app.js?v=17"></script>
   </body>
 </html>
