@@ -18,6 +18,7 @@ const state = {
   search: "",
   category: "Todas",
   jobs: [],
+  jobsLoadError: "",
   adminLogged: false,
   csrfToken: "",
   adminUser: ""
@@ -36,6 +37,8 @@ const els = {
   exportSubscribers: document.querySelector("#exportSubscribers"),
   jobFeed: document.querySelector("#jobFeed"),
   emptyState: document.querySelector("#emptyState"),
+  emptyStateTitle: document.querySelector("#emptyStateTitle"),
+  emptyStateText: document.querySelector("#emptyStateText"),
   resultCount: document.querySelector("#resultCount"),
   jobsCount: document.querySelector("#jobsCount"),
   siteVisitsCount: document.querySelector("#siteVisitsCount"),
@@ -164,6 +167,19 @@ function renderJobs() {
   els.jobsCount.textContent = state.jobs.length;
   els.resultCount.textContent = `${jobs.length} ${jobs.length === 1 ? "resultado" : "resultados"}`;
   els.emptyState.hidden = jobs.length > 0;
+  if (!els.emptyState.hidden) {
+    const hasSearchOrFilter = state.search.trim() !== "" || state.category !== "Todas";
+    if (state.jobsLoadError) {
+      els.emptyStateTitle.textContent = "BTU sigue online";
+      els.emptyStateText.textContent = "No pudimos cargar las vacantes en este momento. Probá recargar la página en unos minutos.";
+    } else if (hasSearchOrFilter) {
+      els.emptyStateTitle.textContent = "No encontramos ofertas con ese filtro";
+      els.emptyStateText.textContent = "Probá con otra palabra clave o elegí otra categoría.";
+    } else {
+      els.emptyStateTitle.textContent = "No hay vacantes activas ahora";
+      els.emptyStateText.textContent = "BTU sigue online. Pronto publicaremos nuevas oportunidades laborales.";
+    }
+  }
 
   els.jobFeed.innerHTML = jobs
     .map(
@@ -245,8 +261,14 @@ async function renderDetail() {
 }
 
 async function loadJobs() {
-  const data = await api("list_vacancies");
-  state.jobs = data.items || [];
+  try {
+    const data = await api("list_vacancies");
+    state.jobs = data.items || [];
+    state.jobsLoadError = "";
+  } catch (error) {
+    state.jobs = [];
+    state.jobsLoadError = error.message;
+  }
   renderCategories();
   renderJobs();
 }
@@ -695,6 +717,4 @@ wireAdmin();
 loadSiteVisits().catch(() => {
   els.siteVisitsCount.textContent = "0";
 });
-loadJobs().then(renderDetail).catch((error) => {
-  els.jobFeed.innerHTML = `<article class="empty-state"><h3>No se pudo cargar BTU</h3><p>${esc(error.message)}</p></article>`;
-});
+loadJobs().then(renderDetail);
