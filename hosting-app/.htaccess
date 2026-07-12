@@ -4,5 +4,5 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^(www\.)?buscotrabajouruguay\.com$ [NC]
 RewriteRule ^(.*)$ https://buscotrabajouruguay.uy/$1 [R=301,L]
 
-DirectoryIndex index.html index.php
-RewriteRule ^$ index.html [L]
+DirectoryIndex index.php index.html
+RewriteRule ^$ index.php [L]

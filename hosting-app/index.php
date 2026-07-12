@@ -2,10 +2,18 @@
 declare(strict_types=1);
 
 $index = __DIR__ . '/index.html';
+$backup = __DIR__ . '/btu-home.html';
 
 if (is_file($index)) {
     header('Content-Type: text/html; charset=UTF-8');
     readfile($index);
+    exit;
+}
+
+if (is_file($backup)) {
+    @copy($backup, $index);
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile($backup);
     exit;
 }
 
