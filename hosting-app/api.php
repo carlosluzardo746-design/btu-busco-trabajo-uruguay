@@ -444,7 +444,7 @@ try {
         require_csrf();
         $imageUrl = upload_image($config);
         $title = text('title') !== '' ? text('title') : 'Nueva vacante';
-        $company = text('company') !== '' ? text('company') : 'BTU';
+        $company = text('company') !== '' ? text('company') : 'UruWork';
         $location = text('location') !== '' ? text('location') : 'Uruguay';
         $category = text('category') !== '' ? text('category') : 'Otras';
         $description = text('description') !== '' ? text('description') : 'Ver imagen del aviso.';

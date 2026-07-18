@@ -170,14 +170,14 @@ function renderJobs() {
   if (!els.emptyState.hidden) {
     const hasSearchOrFilter = state.search.trim() !== "" || state.category !== "Todas";
     if (state.jobsLoadError) {
-      els.emptyStateTitle.textContent = "BTU sigue online";
+      els.emptyStateTitle.textContent = "UruWork sigue online";
       els.emptyStateText.textContent = "No pudimos cargar las vacantes en este momento. Probá recargar la página en unos minutos.";
     } else if (hasSearchOrFilter) {
       els.emptyStateTitle.textContent = "No encontramos ofertas con ese filtro";
       els.emptyStateText.textContent = "Probá con otra palabra clave o elegí otra categoría.";
     } else {
       els.emptyStateTitle.textContent = "No hay vacantes activas ahora";
-      els.emptyStateText.textContent = "BTU sigue online. Pronto publicaremos nuevas oportunidades laborales.";
+      els.emptyStateText.textContent = "UruWork sigue online. Pronto publicaremos nuevas oportunidades laborales.";
     }
   }
 
@@ -275,11 +275,11 @@ async function loadJobs() {
 
 async function loadSiteVisits() {
   const formData = new FormData();
-  const shouldCount = sessionStorage.getItem("btu.siteVisitCounted") !== "1";
+  const shouldCount = sessionStorage.getItem("uruwork.siteVisitCounted") !== "1";
   formData.append("count", shouldCount ? "1" : "0");
   const data = await api("site_visit", { method: "POST", body: formData });
   if (shouldCount) {
-    sessionStorage.setItem("btu.siteVisitCounted", "1");
+    sessionStorage.setItem("uruwork.siteVisitCounted", "1");
   }
   els.siteVisitsCount.textContent = Number(data.visits || 0).toLocaleString("es-UY");
 }
@@ -469,7 +469,7 @@ function wireForms() {
       setFormBusy(form, true);
       await api("subscribe", { method: "POST", body: formData });
       form.reset();
-      document.querySelector("#newsletterStatus").textContent = "Listo. Te sumamos a la newsletter BTU.";
+      document.querySelector("#newsletterStatus").textContent = "Listo. Te sumamos a la newsletter UruWork.";
     } catch (error) {
       document.querySelector("#newsletterStatus").textContent = error.message;
     } finally {
@@ -481,7 +481,7 @@ function wireForms() {
   document.querySelector("#contactForm").addEventListener("submit", (event) => {
     event.preventDefault();
     event.currentTarget.reset();
-    document.querySelector("#contactStatus").textContent = "Mensaje recibido. Gracias por contactar a BTU.";
+    document.querySelector("#contactStatus").textContent = "Mensaje recibido. Gracias por contactar a UruWork.";
   });
 }
 
@@ -499,12 +499,12 @@ function wireAdmin() {
     els.adminLoginForm.querySelector("input")?.focus();
   }
 
-  if (location.hash === "#admin-btu") {
+  if (location.hash === "#admin-btu" || location.hash === "#admin-uruwork") {
     openAdminPanel();
   }
 
   window.addEventListener("hashchange", () => {
-    if (location.hash === "#admin-btu") {
+    if (location.hash === "#admin-btu" || location.hash === "#admin-uruwork") {
       openAdminPanel();
     }
   });
@@ -659,7 +659,7 @@ function wireAdmin() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "suscriptores-btu.csv";
+      link.download = "suscriptores-uruwork.csv";
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

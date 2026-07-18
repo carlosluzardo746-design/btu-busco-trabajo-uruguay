@@ -1,13 +1,13 @@
 :root {
-  --yellow: #ffd21f;
-  --yellow-strong: #f4b900;
-  --ink: #111111;
+  --yellow: #f6ad05;
+  --yellow-strong: #ffbe1a;
+  --ink: #002f6c;
   --muted: #626262;
-  --line: #e8e2cf;
+  --line: #dce5ef;
   --paper: #ffffff;
-  --soft: #f7f4ea;
-  --green: #1f8a4c;
-  --shadow: 0 16px 40px rgba(17, 17, 17, 0.1);
+  --soft: #eef5ff;
+  --green: #0f7a55;
+  --shadow: 0 16px 40px rgba(0, 47, 108, 0.1);
 }
 
 * {
@@ -66,15 +66,14 @@ button {
 
 .brand-logo {
   display: block;
-  width: 36px;
-  height: 36px;
-  flex: 0 0 36px;
-  max-width: 36px;
-  object-fit: cover;
+  width: 112px;
+  height: 42px;
+  flex: 0 0 112px;
+  max-width: 112px;
+  object-fit: contain;
   object-position: center;
-  border-radius: 50%;
-  border: 2px solid var(--ink);
-  background: var(--yellow);
+  border-radius: 6px;
+  background: white;
 }
 
 .brand strong,
@@ -159,7 +158,7 @@ button {
   gap: clamp(24px, 5vw, 56px);
   padding: clamp(40px, 8vw, 92px) clamp(16px, 4vw, 48px) 36px;
   background:
-    linear-gradient(90deg, rgba(17, 17, 17, 0.86), rgba(17, 17, 17, 0.46)),
+    linear-gradient(90deg, rgba(0, 47, 108, 0.9), rgba(0, 47, 108, 0.48)),
     url("https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=80") center/cover;
   color: white;
 }
