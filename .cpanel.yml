@@ -18,3 +18,12 @@ deployment:
     - /bin/cp -R hosting-app/assets/btu-logo.jpeg $DEPLOYPATH/assets/btu-logo.jpeg
     - /bin/mkdir -p $DEPLOYPATH/uploads
     - /bin/cp -R hosting-app/uploads/.htaccess $DEPLOYPATH/uploads/.htaccess
+    - export URUWORKPATH=/home/buscotra/public_html/uruwork/
+    - /bin/mkdir -p $URUWORKPATH
+    - /bin/cp -R uruwork-site/index.html $URUWORKPATH
+    - /bin/cp -R uruwork-site/styles.css $URUWORKPATH
+    - /bin/cp -R uruwork-site/robots.txt $URUWORKPATH
+    - /bin/cp -R uruwork-site/sitemap.xml $URUWORKPATH
+    - /bin/cp -R uruwork-site/.htaccess $URUWORKPATH
+    - /bin/mkdir -p $URUWORKPATH/assets
+    - /bin/cp -R uruwork-site/assets/uruwork-logo.png $URUWORKPATH/assets/uruwork-logo.png
