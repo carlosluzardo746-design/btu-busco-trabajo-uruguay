@@ -25,7 +25,7 @@ header('Content-Type: text/html; charset=UTF-8');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>UruWork | Comunidad laboral de Uruguay</title>
+    <title>UruWork | Busqueda de trabajo en Uruguay</title>
   </head>
   <body>
     <h1>UruWork sigue online</h1>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://buscotrabajouruguay.uy/sitemap.xml
+Sitemap: https://uruwork.com/sitemap.xml

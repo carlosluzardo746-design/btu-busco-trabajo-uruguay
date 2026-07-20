@@ -1,8 +1,14 @@
 Options -Indexes
 
 RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?buscotrabajouruguay\.uy$ [NC]
+RewriteRule ^(.*)$ https://uruwork.com/$1 [R=301,L]
+
 RewriteCond %{HTTP_HOST} ^(www\.)?buscotrabajouruguay\.com$ [NC]
-RewriteRule ^(.*)$ https://buscotrabajouruguay.uy/$1 [R=301,L]
+RewriteRule ^(.*)$ https://uruwork.com/$1 [R=301,L]
+
+RewriteCond %{HTTP_HOST} ^www\.uruwork\.com$ [NC]
+RewriteRule ^(.*)$ https://uruwork.com/$1 [R=301,L]
 
 DirectoryIndex index.php index.html
 RewriteRule ^$ index.php [L]
