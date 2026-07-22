@@ -7,6 +7,7 @@ deployment:
     - /bin/cp -R hosting-app/index.php $DEPLOYPATH
     - /bin/cp -R hosting-app/styles.css $DEPLOYPATH
     - /bin/cp -R hosting-app/app-hosting.js $DEPLOYPATH
+    - /bin/cp -R hosting-app/companies-data.js $DEPLOYPATH
     - /bin/cp -R hosting-app/api.php $DEPLOYPATH
     - /bin/cp -R hosting-app/robots.txt $DEPLOYPATH
     - /bin/cp -R hosting-app/sitemap.xml $DEPLOYPATH

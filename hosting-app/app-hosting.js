@@ -17,6 +17,8 @@ const fallbackImage =
 const state = {
   search: "",
   category: "Todas",
+  companySearch: "",
+  companyCategory: "Todas",
   jobs: [],
   jobsLoadError: "",
   adminLogged: false,
@@ -30,6 +32,12 @@ const els = {
   searchInput: document.querySelector("#searchInput"),
   clearSearch: document.querySelector("#clearSearch"),
   categoryList: document.querySelector("#categoryList"),
+  companySearchInput: document.querySelector("#companySearchInput"),
+  clearCompanySearch: document.querySelector("#clearCompanySearch"),
+  companyCategoryList: document.querySelector("#companyCategoryList"),
+  companyGuideGrid: document.querySelector("#companyGuideGrid"),
+  companyGuideEmpty: document.querySelector("#companyGuideEmpty"),
+  companyGuideCount: document.querySelector("#companyGuideCount"),
   adminCategory: document.querySelector("#adminCategory"),
   adminJobList: document.querySelector("#adminJobList"),
   adminRequestList: document.querySelector("#adminRequestList"),
@@ -123,10 +131,105 @@ function formatPublishDate(value) {
   })}`;
 }
 
+function formatShortDate(value) {
+  if (!value) return "Sin fecha";
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "Sin fecha";
+  return date.toLocaleDateString("es-UY", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+
 function showAdminModal() {
   if (!els.adminModal.open) {
     els.adminModal.showModal();
   }
+}
+
+function activeCompanies() {
+  return (window.uruworkCompanies || []).filter((company) => company.active !== false);
+}
+
+function companyCategories() {
+  return ["Todas", ...Array.from(new Set(activeCompanies().map((company) => company.category))).sort()];
+}
+
+function filteredCompanies() {
+  const term = state.companySearch.trim().toLowerCase();
+  return activeCompanies()
+    .filter((company) => state.companyCategory === "Todas" || company.category === state.companyCategory)
+    .filter((company) => {
+      if (!term) return true;
+      return [company.name, company.category, company.area, company.roles]
+        .join(" ")
+        .toLowerCase()
+        .includes(term);
+    });
+}
+
+function companyApplyHref(company) {
+  if (company.applyUrl) return company.applyUrl;
+  if (company.applyEmail) {
+    return `mailto:${company.applyEmail}?subject=${encodeURIComponent("Postulacion CV - UruWork")}`;
+  }
+  return "";
+}
+
+function companyApplyTarget(company) {
+  return company.applyUrl ? ` target="_blank" rel="noreferrer"` : "";
+}
+
+function renderCompanyCategories() {
+  if (!els.companyCategoryList) return;
+  const companies = activeCompanies();
+  els.companyCategoryList.innerHTML = companyCategories()
+    .map((category) => {
+      const count = category === "Todas" ? companies.length : companies.filter((company) => company.category === category).length;
+      return `
+        <button class="category-chip ${state.companyCategory === category ? "active" : ""}" data-company-category="${esc(category)}">
+          <span>${esc(category)}</span>
+          <span>${count}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderCompanyGuide() {
+  if (!els.companyGuideGrid) return;
+  const companies = filteredCompanies();
+  els.companyGuideCount.textContent = `${companies.length} ${companies.length === 1 ? "empresa" : "empresas"}`;
+  els.companyGuideEmpty.hidden = companies.length > 0;
+  els.companyGuideGrid.innerHTML = companies
+    .map((company) => {
+      const href = companyApplyHref(company);
+      return `
+        <article class="company-card">
+          <div class="company-card-top">
+            <span class="pill company-status ${company.status === "Verificado" ? "verified" : company.status === "Por revisar" ? "review" : "unavailable"}">
+              ${esc(company.status)}
+            </span>
+            <span class="company-date">Verificado: ${esc(formatShortDate(company.verifiedAt))}</span>
+          </div>
+          <h3>${esc(company.name)}</h3>
+          <div class="company-card-meta">
+            <span>${esc(company.category)}</span>
+            ${company.area ? `<span>${esc(company.area)}</span>` : ""}
+          </div>
+          <p><strong>Puestos habituales:</strong> ${esc(company.roles)}</p>
+          <div class="company-card-actions">
+            ${
+              href
+                ? `<a class="apply" href="${esc(href)}"${companyApplyTarget(company)}>Presentar mi CV</a>`
+                : `<button type="button" disabled>Presentar mi CV</button>`
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 function filteredJobs() {
@@ -698,6 +801,31 @@ function wireNavigation() {
     renderJobs();
   });
 
+  if (els.companySearchInput) {
+    els.companySearchInput.addEventListener("input", (event) => {
+      state.companySearch = event.target.value;
+      renderCompanyGuide();
+    });
+  }
+
+  if (els.clearCompanySearch) {
+    els.clearCompanySearch.addEventListener("click", () => {
+      state.companySearch = "";
+      els.companySearchInput.value = "";
+      renderCompanyGuide();
+    });
+  }
+
+  if (els.companyCategoryList) {
+    els.companyCategoryList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-company-category]");
+      if (!button) return;
+      state.companyCategory = button.dataset.companyCategory;
+      renderCompanyCategories();
+      renderCompanyGuide();
+    });
+  }
+
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-copy]");
     if (!button) return;
@@ -714,6 +842,8 @@ function wireNavigation() {
 wireNavigation();
 wireForms();
 wireAdmin();
+renderCompanyCategories();
+renderCompanyGuide();
 loadSiteVisits().catch(() => {
   els.siteVisitsCount.textContent = "0";
 });

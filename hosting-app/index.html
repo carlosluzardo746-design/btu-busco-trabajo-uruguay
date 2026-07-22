@@ -57,6 +57,7 @@
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
       <nav class="main-nav" id="mainNav" aria-label="Navegacion principal">
         <a href="#inicio">Inicio</a>
+        <a href="#guia-empresas">Empresas CV</a>
         <a href="#empresas">Empresas</a>
         <a href="#sobre">Sobre UruWork</a>
         <a href="#contacto">Contacto</a>
@@ -144,6 +145,46 @@
       </section>
 
       <section class="detail-view" id="jobDetail" hidden></section>
+
+      <section class="company-guide-section" id="guia-empresas">
+        <div class="section-heading company-guide-heading">
+          <div>
+            <p class="eyebrow">Guia de postulacion directa</p>
+            <h2>Empresas donde podes presentar tu CV</h2>
+          </div>
+          <span id="companyGuideCount">0 empresas</span>
+        </div>
+        <p class="company-guide-intro">
+          Encontrá empresas donde podés presentar tu currículum directamente a través de sus canales oficiales.
+          Utilizá los filtros para buscar por rubro y elegí aquellas que coincidan con tu experiencia e intereses.
+        </p>
+        <div class="company-guide-alerts">
+          <p>
+            La presencia de una empresa en esta guía no significa que actualmente tenga vacantes abiertas.
+            Uruwork reúne y facilita el acceso a canales públicos de postulación, pero no participa en los
+            procesos de selección ni garantiza una respuesta.
+          </p>
+          <p>
+            Nunca pagues para postularte a un empleo. Verificá que cualquier comunicación posterior provenga de
+            un canal oficial de la empresa.
+          </p>
+        </div>
+        <div class="company-guide-tools" aria-label="Buscar empresas para presentar CV">
+          <div class="search-box">
+            <label for="companySearchInput">Buscar empresa</label>
+            <div class="search-row">
+              <input id="companySearchInput" type="search" placeholder="Nombre de empresa" />
+              <button id="clearCompanySearch" aria-label="Limpiar busqueda de empresas">×</button>
+            </div>
+          </div>
+          <div class="company-category-list" id="companyCategoryList" aria-label="Categorias de empresas"></div>
+        </div>
+        <div class="company-guide-grid" id="companyGuideGrid"></div>
+        <article class="empty-state company-empty-state" id="companyGuideEmpty" hidden>
+          <h3>No encontramos empresas con ese filtro</h3>
+          <p>Proba con otra palabra clave o elegi otra categoria.</p>
+        </article>
+      </section>
 
       <section class="form-section" id="empresas">
         <div>
@@ -305,6 +346,7 @@
       </section>
     </dialog>
 
-    <script src="./app-hosting.js?v=19"></script>
+    <script src="./companies-data.js?v=1"></script>
+    <script src="./app-hosting.js?v=20"></script>
   </body>
 </html>
