@@ -583,5 +583,70 @@ window.uruworkCompanies = [
     verifiedAt: "2026-07-22",
     status: "Verificado",
     active: true
+  },
+  {
+    id: "central-mayorista",
+    name: "Central Mayorista",
+    category: "Comercio y atencion al cliente",
+    area: "Montevideo, Canelones y San Jose.",
+    roles: "Caja, reposicion, atencion, deposito y supermercado.",
+    applyUrl: "https://www.centralmayorista.uy/postulaciones/",
+    applyEmail: "",
+    sourceUrl: "https://www.centralmayorista.uy/postulaciones/",
+    verifiedAt: "2026-08-01",
+    status: "Verificado",
+    active: true
+  },
+  {
+    id: "macrofarma",
+    name: "Macrofarma",
+    category: "Salud",
+    area: "Montevideo.",
+    roles: "Farmacia, drogueria, ventas, deposito y administracion.",
+    applyUrl: "https://macrofarma.com.uy/nosotros/trabaja-con-nosotros/",
+    applyEmail: "",
+    sourceUrl: "https://macrofarma.com.uy/nosotros/trabaja-con-nosotros/",
+    verifiedAt: "2026-08-01",
+    status: "Verificado",
+    active: true
+  },
+  {
+    id: "encatex",
+    name: "Encatex",
+    category: "Logistica, limpieza y servicios",
+    area: "Montevideo.",
+    roles: "Textiles, logistica, produccion, deposito y servicios.",
+    applyUrl: "https://www.encatex.com.uy/Trabaja-con-Nosotros",
+    applyEmail: "",
+    sourceUrl: "https://www.encatex.com.uy/Trabaja-con-Nosotros",
+    verifiedAt: "2026-08-01",
+    status: "Verificado",
+    active: true
+  },
+  {
+    id: "red-expres",
+    name: "Red Expres",
+    category: "Comercio y atencion al cliente",
+    area: "Montevideo, Canelones, Maldonado, San Jose, Soriano y Rio Negro.",
+    roles: "Caja, reposicion, atencion, supermercado y deposito.",
+    applyUrl: "https://redexpres.uy/trabaja-con-nosotros/",
+    applyEmail: "",
+    sourceUrl: "https://redexpres.uy/trabaja-con-nosotros/",
+    verifiedAt: "2026-08-01",
+    status: "Verificado",
+    active: true
+  },
+  {
+    id: "farmacia-el-tunel",
+    name: "Farmacia El Tunel",
+    category: "Salud",
+    area: "Montevideo.",
+    roles: "Farmacia, atencion, ventas, cadeteria y mostrador.",
+    applyUrl: "https://eltunel.com.uy/trabaja-con-nosotros",
+    applyEmail: "",
+    sourceUrl: "https://eltunel.com.uy/trabaja-con-nosotros",
+    verifiedAt: "2026-08-01",
+    status: "Verificado",
+    active: true
   }
 ];
