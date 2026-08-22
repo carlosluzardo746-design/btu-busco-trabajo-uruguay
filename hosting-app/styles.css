@@ -96,6 +96,7 @@ button {
 .main-nav a,
 .admin-link,
 .secondary-action,
+.guide-action,
 .primary-action,
 .site-footer a {
   min-height: 42px;
@@ -206,6 +207,12 @@ button {
 .secondary-action {
   border-color: rgba(255, 255, 255, 0.5);
   color: white;
+}
+
+.guide-action {
+  border-color: white;
+  background: white;
+  color: var(--ink);
 }
 
 .hero-panel {
@@ -1100,6 +1107,7 @@ button {
   }
 
   .primary-action,
+  .guide-action,
   .secondary-action {
     width: 100%;
   }
